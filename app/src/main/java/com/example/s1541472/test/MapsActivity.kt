@@ -1,10 +1,16 @@
 package com.example.s1541472.test
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
+import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -22,9 +28,9 @@ class MapsActivity : AppCompatActivity()
 
     private lateinit var mMap: GoogleMap
     private lateinit var mGoogleApiClient: GoogleApiClient
-    val PERMSISSION_REQUEST_ACCESS_FINE_LOCATION = 1
+    val PERMSISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
     var mLocationPermissionGranted = false
-    private lateinit var mLastLocation : Location
+    private var mLastLocation : Location? = null
     val TAG = "MapsActivity"
 
 
@@ -58,7 +64,68 @@ class MapsActivity : AppCompatActivity()
         }
     }
 
+    fun createLocationRequest(){
+        val mLocationRequest = LocationRequest()
+        mLocationRequest.interval = 5000 //in miliseconds
+        mLocationRequest.fastestInterval = 1000
+        mLocationRequest.priority =LocationRequest.PRIORITY_HIGH_ACCURACY
 
+        //permission check
+        val permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+
+        if(permissionCheck == PackageManager.PERMISSION_GRANTED){
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient
+                    ,mLocationRequest,this)
+        }
+    }
+
+    override fun onConnected(connectionHint: Bundle?) {
+        try{
+            createLocationRequest()
+        }catch(ise: IllegalStateException){
+            println("IllegalStateException thrown [onConnected]")
+        }
+
+//        val permissionCheck2 = ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION)
+
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            //no last location ready yet
+            try {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
+            }catch(se:IllegalStateException){
+                println("fuck")
+                println(mGoogleApiClient.isConnected)
+            }
+        }else{
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        ,PERMSISSIONS_REQUEST_ACCESS_FINE_LOCATION)
+        }
+
+    }
+
+    override fun onLocationChanged(current: Location?) {
+        if(current == null){
+            println("[onLocationChanged] unknown location")
+        }else{
+            println("Location changed")
+            println(current.latitude)
+            println(current.longitude)
+        }
+    }
+
+    override fun onConnectionSuspended(flag: Int) {
+        println(">>> connection Suspended")
+    }
+
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        println(">>> onConnection failed")
+        //return to main screen
+    }
 
     /**
      * Manipulates the map once available.
@@ -76,5 +143,20 @@ class MapsActivity : AppCompatActivity()
         val sydney = LatLng(-34.0, 151.0)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        try {
+            mMap.isMyLocationEnabled = true
+        }catch(se :SecurityException){
+            println("Security exception thrown [onMapReady]")
+        }
+        mMap.uiSettings.isMyLocationButtonEnabled = true
+
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            //no last location ready yet
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
+        }
     }
+
+
 }
