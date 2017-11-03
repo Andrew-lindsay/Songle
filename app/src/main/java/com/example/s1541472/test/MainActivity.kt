@@ -9,7 +9,7 @@ import android.view.MenuItem
 import android.view.View
 
 import kotlinx.android.synthetic.main.activity_main.*
-
+import kotlinx.android.synthetic.main.content_main.*
 //git test push
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        })
 
-        fab.setOnClickListener { switchToMap() }
+        Bmain.setOnClickListener { switchToMap() }
 
 
         /* Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)

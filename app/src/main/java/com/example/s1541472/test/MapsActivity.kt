@@ -7,24 +7,37 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.view.View
+import android.widget.Toast
+import android.widget.Toast.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.data.kml.KmlLayer
+import java.security.acl.LastOwnerException
+import com.loopj.android.http.AsyncHttpClient
+import com.loopj.android.http.FileAsyncHttpResponseHandler
+import cz.msebera.android.httpclient.Header
+import java.io.File
+import java.io.FileInputStream
+
+
 
 class MapsActivity : AppCompatActivity()
         ,OnMapReadyCallback
         ,GoogleApiClient.ConnectionCallbacks
         ,GoogleApiClient.OnConnectionFailedListener
-        ,LocationListener {
+        ,LocationListener
+        {
 
     private lateinit var mMap: GoogleMap
     private lateinit var mGoogleApiClient: GoogleApiClient
@@ -32,6 +45,7 @@ class MapsActivity : AppCompatActivity()
     var mLocationPermissionGranted = false
     private var mLastLocation : Location? = null
     val TAG = "MapsActivity"
+    lateinit var rfile: File
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +78,7 @@ class MapsActivity : AppCompatActivity()
         }
     }
 
+    //not required as of interface but setup function for mlocationRequest object
     fun createLocationRequest(){
         val mLocationRequest = LocationRequest()
         mLocationRequest.interval = 5000 //in miliseconds
@@ -107,13 +122,18 @@ class MapsActivity : AppCompatActivity()
 
     }
 
+    // changed when location updated main logic for being near markers goes here ?
     override fun onLocationChanged(current: Location?) {
         if(current == null){
             println("[onLocationChanged] unknown location")
         }else{
+            //update location need for location button
+            mLastLocation = current
+            val currentloc = LatLng(current.latitude,current.longitude)
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
             println("Location changed")
-            println(current.latitude)
-            println(current.longitude)
+
+            //set up tracking
         }
     }
 
@@ -139,24 +159,62 @@ class MapsActivity : AppCompatActivity()
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val mapBounds = LatLngBounds(LatLng(55.942617,-3.192473)
+                ,LatLng(55.946233,-3.184319))
+
+        mMap.setMinZoomPreference(12.0F)
+        mMap.setMaxZoomPreference(20.0F)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mapBounds,0))
 
         try {
             mMap.isMyLocationEnabled = true
         }catch(se :SecurityException){
             println("Security exception thrown [onMapReady]")
         }
+
         mMap.uiSettings.isMyLocationButtonEnabled = true
 
-        if(ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            //no last location ready yet
-                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
+
+        mMap.setOnMyLocationButtonClickListener {
+            //my god this code is terrible
+            if(mLastLocation != null){
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom( LatLng(mLastLocation!!.latitude, mLastLocation!!.longitude),20F))
+            }
+                true
         }
+        //alternative way is to user the xml
+        val client = AsyncHttpClient()
+        client.get("https://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/01/map5.txt", object : FileAsyncHttpResponseHandler(/* Context */this) {
+            override fun onSuccess(statusCode: Int, headers: Array<Header>, response: File) {
+
+                println(response.toString())
+                println("hi")
+                var kmlInputstream  = FileInputStream(response)
+                var layer = KmlLayer(mMap, kmlInputstream, applicationContext)
+                layer.addLayerToMap()
+
+            }
+
+            override fun onFailure(statusCode: Int, headers: Array<out Header>?, throwable: Throwable?, file: File?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                println(">>> file failed to download")
+            }
+        })
+
+
+
+
+
+//        if(ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+//            //no last location ready yet
+//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
+//        }
+
+
     }
 
 
+
 }
+
