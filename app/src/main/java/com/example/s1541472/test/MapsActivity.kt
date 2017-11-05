@@ -165,7 +165,7 @@ class MapsActivity : AppCompatActivity()
 
         mMap.setMinZoomPreference(12.0F)
         mMap.setMaxZoomPreference(20.0F)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mapBounds,0))
+        mMap.setOnMapLoadedCallback{ mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, 0))}
 
         try {
             mMap.isMyLocationEnabled = true

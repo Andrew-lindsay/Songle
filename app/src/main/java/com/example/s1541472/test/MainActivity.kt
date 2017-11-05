@@ -1,5 +1,8 @@
 package com.example.s1541472.test
 
+import android.app.AlertDialog
+import android.app.PendingIntent.getActivity
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -20,13 +23,26 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-//equivalent statements
+        //build info dialog box
+        val infoBuilder = AlertDialog.Builder(this)
+        infoBuilder.setMessage(R.string.info_text)
+                .setTitle(R.string.welcome_title)
+        //set ok button for exit
+        infoBuilder.setPositiveButton(R.string.ok, DialogInterface.OnClickListener { dialog, id ->
+            // User clicked OK button
+        })
+
+        val info_box = infoBuilder.create()
+
+        //equivalent statements
 //        fab.setOnClickListener(object : View.OnClickListener {
 //            override fun onClick(v: View?) {
 //                switchToMap()
 //            }
 //        })
 
+        //set button presses
+        info.setOnClickListener { info_box.show()}
         Bmain.setOnClickListener { switchToDifficultySelect() }
 
 

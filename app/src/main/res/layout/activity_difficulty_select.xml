@@ -4,24 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/background"
     tools:context="com.example.s1541472.test.DifficultySelect"
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="81dp">
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="210dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="380dp"
+        android:layout_width="223dp"
+        android:layout_height="65dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:fontFamily="sans-serif"
         android:text="Difficulty"
         android:textAlignment="center"
         android:textAllCaps="false"
-        android:textSize="36sp"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textSize="50sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/random"
+        app:layout_constraintBottom_toTopOf="@+id/easy"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -34,22 +35,21 @@
         android:layout_marginBottom="364dp"
         android:layout_marginTop="32dp"
         android:text="Easy"
+        android:tooltipText="Words are  classified as  either boring , not boring , interesting or very- interesting , and all of the words are displayed."
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/medium"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="Medium"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:tooltipText="Words are classified as either boring , not boring or interesting , and all of the words are displayed."
+        app:layout_constraintStart_toStartOf="@+id/easy"
         app:layout_constraintTop_toBottomOf="@+id/easy" />
 
     <Button
@@ -57,12 +57,10 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="Hard"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:tooltipText="Words are classified as either boring, not boring or interesting, and only 75% of the words are displayed."
+        app:layout_constraintStart_toStartOf="@+id/medium"
         app:layout_constraintTop_toBottomOf="@+id/medium" />
 
     <Button
@@ -73,8 +71,8 @@
         android:layout_marginTop="16dp"
         android:text="Extra Hard"
         android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:tooltipText="Words are classified as either boring or not boring, and only 50% of the words are displayed."
+        app:layout_constraintStart_toStartOf="@+id/hard"
         app:layout_constraintTop_toBottomOf="@+id/hard" />
 
     <Button
@@ -84,8 +82,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Extreme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:tooltipText="No additional information is given,  words are unclassified, and only 25% of the words are displayed"
+        app:layout_constraintStart_toStartOf="@+id/extra_hard"
         app:layout_constraintTop_toBottomOf="@+id/extra_hard" />
 
     <Button
@@ -93,11 +91,37 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="40dp"
         android:text="Random"
+        app:layout_constraintEnd_toEndOf="@+id/Extreme"
+        app:layout_constraintHorizontal_bias="0.416"
+        app:layout_constraintStart_toStartOf="@+id/Extreme"
+        app:layout_constraintTop_toBottomOf="@+id/Extreme" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="345dp"
+        android:layout_height="460dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Extreme" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/note" />
+
+    <ImageView
+        android:id="@+id/info_question"
+        android:layout_width="29dp"
+        android:layout_height="22dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/easy"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="@+id/textView2"
+        app:srcCompat="@android:drawable/ic_menu_help" />
 </android.support.constraint.ConstraintLayout>

@@ -43,7 +43,8 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".DifficultySelect"></activity>
+        <activity android:name=".DifficultySelect" />
+        <activity android:name=".SongSelectActivity"></activity>
     </application>
 
 </manifest>
