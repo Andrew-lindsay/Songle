@@ -10,6 +10,8 @@ import android.view.View
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.activity_difficulty_select.*
+
 //git test push
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        })
 
-        Bmain.setOnClickListener { switchToMap() }
+        Bmain.setOnClickListener { switchToDifficultySelect() }
 
 
         /* Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -49,8 +51,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun switchToMap(){
-        val intent = Intent(this,MapsActivity::class.java)
+    private fun switchToDifficultySelect(){
+        val intent = Intent(this,DifficultySelect::class.java)
         startActivity(intent)
     }
 }
