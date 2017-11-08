@@ -7,6 +7,6 @@
         guess the name of the popular song </string>
     <string name="welcome_title">Welcome to Songle</string>
     <string name="ok">ok</string>
-    <string name="well_done" >You have correctly guess the name of the song</string>
+    <string name="well_done">You have correctly guessed the name of the song</string>
 
 </resources>

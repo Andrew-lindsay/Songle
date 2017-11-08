@@ -44,6 +44,31 @@
                     android:layout_height="136dp"
                     app:srcCompat="@drawable/note" />
 
+                <Button
+                    android:id="@+id/navCollect"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="Words Collected"
+                    android:drawableStart="@drawable/ic_book"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1">
+                </Button>
+
+                <Button
+                    android:id="@+id/navHelp"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="Help"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1">
+                </Button>
+
+
+
                 <ListView
                 android:id="@+id/drawerList"
                 android:layout_marginBottom="8dp"

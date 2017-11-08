@@ -77,14 +77,20 @@ class MapsActivity : AppCompatActivity()
 
         toolbar.setNavigationOnClickListener {navBarOpen() }
 
-        val strs = ArrayList<String>()
+        navCollect.setOnClickListener { wordCollect() }
 
-        strs.add("Words Collected")
-        strs.add("help")
-
-        val adp = ArrayAdapter(this,R.layout.simplerow,strs)
-
-        drawerList.adapter = adp
+        //items in list---------------------
+//        val strs = ArrayList<String>()
+//
+//        strs.add("Words Collected")
+//        strs.add("help")
+//
+//        val adp = ArrayAdapter(this,R.layout.simplerow,strs)
+//
+//        drawerList.adapter = adp
+//
+//
+//        //-----------------------------------
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -325,7 +331,7 @@ class MapsActivity : AppCompatActivity()
                 // can add include for layout guess_song_layout
                 var congratBuilder = AlertDialog.Builder(this)
 
-                val inflater =  layoutInflater
+                val inflater = layoutInflater
 
                 val a = inflater.inflate(R.layout.guess_song_layout,null)
 
@@ -371,6 +377,18 @@ class MapsActivity : AppCompatActivity()
                 }else{
                     drawer_layout.openDrawer(GravityCompat.START)
                 }
+
+
+            }
+            private fun wordCollect(){
+                val exitBuilder  = AlertDialog.Builder(this)
+
+                exitBuilder
+                        .setTitle("Words Colected:")
+                        .setPositiveButton("Ok",{_,_ ->
+
+                        }).setMessage("the, Forrest, will, rise, appropriation")
+
 
             }
 

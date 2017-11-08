@@ -113,15 +113,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/note" />
 
-    <ImageView
-        android:id="@+id/info_question"
-        android:layout_width="29dp"
-        android:layout_height="22dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/easy"
-        app:layout_constraintStart_toEndOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="@+id/textView2"
-        app:srcCompat="@android:drawable/ic_menu_help" />
 </android.support.constraint.ConstraintLayout>

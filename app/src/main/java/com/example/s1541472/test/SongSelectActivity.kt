@@ -24,7 +24,6 @@ class SongSelectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_select)
 
-
         for(i in 1..12){
             val song1 = Song(title = "${i}", number = 1, artist = "me", link = "None", complete = 0)
             songs.add(song1)
@@ -33,12 +32,10 @@ class SongSelectActivity : AppCompatActivity() {
         val song1 = Song(title = "Bohemian Rhapsody", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 1)
         songs.add(5,song1)
 
-
         val adapter = ArrayAdapter(this,R.layout.simplerow,songs)
 
         songList.adapter = adapter
         val infoBuilder = AlertDialog.Builder(this)
-
 
         songList.onItemClickListener = object: OnItemClickListener {
             override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
@@ -87,15 +84,19 @@ class SongSelectActivity : AppCompatActivity() {
         val complist = ArrayList<Song>()
 
         val s = Song(title = "Bohemian Rhapsody", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 1)
-
+        val r = Song(title = "Hello and welcome to the beginning", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 2)
         complist.add(s)
+        complist.add(s)
+        complist.add(s)
+        complist.add(r)
 
-
-        val adapter = ArrayAdapter(this,R.layout.simplerow,complist)
+        val adapter = songListAdapter(complist,this)
 
         list.adapter = adapter
 
         val diabuild = AlertDialog.Builder(this)
+
+
 
         diabuild.setView(list)
                 .setTitle("Completed Songs")
