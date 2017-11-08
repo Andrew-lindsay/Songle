@@ -1,0 +1,15 @@
+<menu xmlns:android2="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/android/res"
+    xmlns:android="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.s1541472.test.SongSelectActivity">
+
+    <item
+        android2:id="@+id/comp_song"
+        android2:enabled="true"
+        android2:icon="@drawable/ic_reorder_black_24dp"
+        android2:title="songs"
+        android2:visible="true"
+        android:showAsAction="always" />
+
+</menu>

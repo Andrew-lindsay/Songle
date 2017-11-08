@@ -6,23 +6,24 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_song_select.*
-import android.widget.Toast
-import android.widget.TextView
 import android.widget.AdapterView.OnItemClickListener
 import android.content.ActivityNotFoundException
 import android.net.Uri
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class SongSelectActivity : AppCompatActivity() {
+
+    var songs = ArrayList<Song>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_select)
 
-        var songs = ArrayList<Song>()
 
         for(i in 1..12){
             val song1 = Song(title = "${i}", number = 1, artist = "me", link = "None", complete = 0)
@@ -58,7 +59,7 @@ class SongSelectActivity : AppCompatActivity() {
                         // User clicked play again button
                         switchtoMap()
                     })
-                    infoBuilder.setNeutralButton("Listen to Song",DialogInterface.OnClickListener { dialog, id ->
+                    infoBuilder.setNeutralButton("Listen",DialogInterface.OnClickListener { dialog, id ->
                         watchVideoLink(entrySong.link)
                     })
                     infoBuilder.create().show()
@@ -70,10 +71,50 @@ class SongSelectActivity : AppCompatActivity() {
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_song_select, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+
+        val list = ListView(this)
+
+        val complist = ArrayList<Song>()
+
+        val s = Song(title = "Bohemian Rhapsody", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 1)
+
+        complist.add(s)
+
+
+        val adapter = ArrayAdapter(this,R.layout.simplerow,complist)
+
+        list.adapter = adapter
+
+        val diabuild = AlertDialog.Builder(this)
+
+        diabuild.setView(list)
+                .setTitle("Completed Songs")
+
+        val songComp = diabuild.create()
+
+
+        return when (item.itemId) {
+            R.id.comp_song ->  {
+                songComp.show()
+                true}
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     private fun switchtoMap(){
         val intent = Intent(this,MapsActivity::class.java)
         startActivity(intent)
+
     }
 
     fun watchVideoLink(id: String) {

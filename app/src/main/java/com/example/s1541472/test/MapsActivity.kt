@@ -1,15 +1,28 @@
 package com.example.s1541472.test
 
 import android.Manifest
+import android.content.ActivityNotFoundException
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.GravityCompat
+import android.support.v7.app.ActionBar
+import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
-import android.widget.Toast.*
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.LinearLayout
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
@@ -22,12 +35,14 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.data.kml.KmlLayer
-import java.security.acl.LastOwnerException
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.FileAsyncHttpResponseHandler
 import cz.msebera.android.httpclient.Header
+import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.android.synthetic.main.guess_song_layout.*
+import kotlinx.android.synthetic.main.guess_song_layout.view.*
+import kotlinx.android.synthetic.main.toolbar_map.*
 import java.io.File
 import java.io.FileInputStream
 
@@ -47,11 +62,30 @@ class MapsActivity : AppCompatActivity()
     private var mLastLocation : Location? = null
     val TAG = "MapsActivity"
     lateinit var rfile: File
+    private val songName: String = "Bo"
+    private val link: String = "https://youtu.be/fJ9rUzIMcZQ"
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        setContentView(R.layout.toolbar_map)
+        setSupportActionBar(toolbar)
+        toolbar.setNavigationIcon(R.drawable.menu)
+
+//        val mDrawerToggle = ActionBarDrawerToggle(this, drawer_layout, 0, 0)
+
+        toolbar.setNavigationOnClickListener {navBarOpen() }
+
+        val strs = ArrayList<String>()
+
+        strs.add("Words Collected")
+        strs.add("help")
+
+        val adp = ArrayAdapter(this,R.layout.simplerow,strs)
+
+        drawerList.adapter = adp
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -64,6 +98,8 @@ class MapsActivity : AppCompatActivity()
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build()
+
+        guess.setOnClickListener { guessButtonPress() }
 
     }
 
@@ -163,6 +199,8 @@ class MapsActivity : AppCompatActivity()
         val mapBounds = LatLngBounds(LatLng(55.942617,-3.192473)
                 ,LatLng(55.946233,-3.184319))
 
+        mMap.setPadding(10,210,10,10)
+
         mMap.setMinZoomPreference(12.0F)
         mMap.setMaxZoomPreference(20.0F)
         mMap.setOnMapLoadedCallback{ mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, 0))}
@@ -177,7 +215,7 @@ class MapsActivity : AppCompatActivity()
 
 
         mMap.setOnMyLocationButtonClickListener {
-            //my god this code is terrible
+            //my god this code is terrible can be fixed by calling google api and not assigning mLastLocation in on location change
             if(mLastLocation != null){
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom( LatLng(mLastLocation!!.latitude, mLastLocation!!.longitude),20F))
             }
@@ -204,8 +242,6 @@ class MapsActivity : AppCompatActivity()
 
 
 
-
-
 //        if(ContextCompat.checkSelfPermission(this,
 //                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 //            //no last location ready yet
@@ -214,8 +250,130 @@ class MapsActivity : AppCompatActivity()
 
 
     }
+            override fun onBackPressed() {
+                val exitBuilder = AlertDialog.Builder(this)
+//                var txtView = EditText(this)
 
+                exitBuilder
+                        .setTitle("Warning")
+                        .setMessage("Are you sure you want to exit all progress will be lost")
+                        .setPositiveButton("Yes", DialogInterface.OnClickListener{ _, _ ->
+                            super.onBackPressed()
+                        })
+                        .setNegativeButton("No",{_,_ -> })
+                        .create()
+                        .show()
 
+            }
 
-}
+            fun guessButtonPress() {
+
+                val exitBuilder = AlertDialog.Builder(this)
+
+                //maybe put in different xml file then grab id
+                var txtView = EditText(this)
+
+                var layout = LinearLayout(this)
+                layout.orientation = LinearLayout.VERTICAL
+                var params = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                            params.setMargins(70, 0, 70, 0)
+
+                layout.addView(txtView,params)
+
+                exitBuilder
+                        .setTitle("Enter Your Guess:")
+                        .setView(layout)
+                        .setPositiveButton("Enter",null)
+                        .setNegativeButton("Exit",{_,_ ->
+
+                        })
+
+                var dialog2 = exitBuilder.setMessage("Sorry that is not correct").create()
+
+                dialog2.setOnShowListener { dialog2.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                        val inputTxt = txtView.text.toString()
+                        if(inputTxt == songName){
+                            println("well done")
+                            onCorrectGuess()
+                            dialog2.dismiss()
+                        }else{
+                            txtView.setText("")
+                            dialog2.create()
+                        }
+                    }
+                }
+
+                var dialog = exitBuilder.setMessage("").setPositiveButton("Enter",{ _,_  ->
+                    val inputTxt = txtView.text.toString()
+                    if(inputTxt == songName){
+                        println("well done")
+                        onCorrectGuess()
+                    }else{
+                        txtView.clearAnimation()
+                        //not a great fix can be done better
+                        (layout.parent as ViewGroup).removeView(layout)
+                        dialog2.show()
+                    }
+                }).create()
+
+                dialog.show()
+
+            }
+
+            private fun onCorrectGuess() {
+                // can add include for layout guess_song_layout
+                var congratBuilder = AlertDialog.Builder(this)
+
+                val inflater =  layoutInflater
+
+                val a = inflater.inflate(R.layout.guess_song_layout,null)
+
+                a.txtsong.text = songName
+
+                congratBuilder
+                        .setView(a)
+                        .setPositiveButton("play Song",{_,_ ->
+                            watchVideoLink(link)
+                        }).setNegativeButton("return" ,{ _ , _ ->
+                            switchtoSongSelect()
+                }).setOnDismissListener { super.onBackPressed() }
+
+                val congratDialog = congratBuilder.create()
+
+                congratDialog.show()
+            }
+
+            private fun watchVideoLink(id: String) {
+
+                val id_fix = id.substring(17,id.length)
+
+                val applicationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id_fix))
+                val browserIntent = Intent(Intent.ACTION_VIEW,
+                        Uri.parse("http://www.youtube.com/watch?v=" + id_fix))
+                try {
+                    startActivity(applicationIntent)
+                } catch (ex: ActivityNotFoundException) {
+                    startActivity(browserIntent)
+                }
+
+            }
+
+            private fun switchtoSongSelect(){
+                val intent1 = Intent(this,SongSelectActivity::class.java)
+                startActivity(intent1)
+            }
+
+            private fun navBarOpen(){
+
+                if(drawer_layout.isDrawerOpen(GravityCompat.START)){
+                    drawer_layout.closeDrawer(GravityCompat.START)
+                }else{
+                    drawer_layout.openDrawer(GravityCompat.START)
+                }
+
+            }
+
+            }
+
 

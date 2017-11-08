@@ -42,7 +42,8 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" />
+            android:label="@string/title_activity_maps"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".DifficultySelect" />
         <activity android:name=".SongSelectActivity"></activity>
     </application>

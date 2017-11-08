@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginLeft="70dp"
+    android:layout_marginRight="70dp"
+    android:background="@color/background"
+    >
+
+
+    <TextView
+        android:id="@+id/txtCor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fontFamily="cursive"
+        android:text="Congratualtions"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display3" />
+    <!--<ImageView-->
+        <!--android:id="@+id/imageView5"-->
+        <!--android:layout_width="80dp"-->
+        <!--android:layout_height="136dp"-->
+      <!---->
+        <!--android:layout_marginBottom="204dp"-->
+        <!--app:srcCompat="@drawable/note" />-->
+
+
+    <TextView
+        android:id="@+id/txtmain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="@string/well_done"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+    <TextView
+        android:id="@+id/txtsong"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:editable="true"
+        android:paddingBottom="50dp"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:paddingTop="10dp"
+        android:text=""
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+
+
+
+
+</LinearLayout>
