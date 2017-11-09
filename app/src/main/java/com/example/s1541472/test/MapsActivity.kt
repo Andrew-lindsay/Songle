@@ -79,6 +79,8 @@ class MapsActivity : AppCompatActivity()
 
         navCollect.setOnClickListener { wordCollect() }
 
+
+
         //items in list---------------------
 //        val strs = ArrayList<String>()
 //
@@ -387,7 +389,7 @@ class MapsActivity : AppCompatActivity()
                         .setTitle("Words Colected:")
                         .setPositiveButton("Ok",{_,_ ->
 
-                        }).setMessage("the, Forrest, will, rise, appropriation")
+                        }).setMessage("the, Forrest, will, rise, appropriation").create().show()
 
 
             }

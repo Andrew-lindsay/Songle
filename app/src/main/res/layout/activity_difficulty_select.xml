@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -35,7 +36,7 @@
         android:layout_marginBottom="364dp"
         android:layout_marginTop="32dp"
         android:text="Easy"
-        android:tooltipText="Words are  classified as  either boring , not boring , interesting or very- interesting , and all of the words are displayed."
+        android:tooltipText="@string/easy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Medium"
-        android:tooltipText="Words are classified as either boring , not boring or interesting , and all of the words are displayed."
+        android:tooltipText="@string/medium"
         app:layout_constraintStart_toStartOf="@+id/easy"
         app:layout_constraintTop_toBottomOf="@+id/easy" />
 
@@ -59,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Hard"
-        android:tooltipText="Words are classified as either boring, not boring or interesting, and only 75% of the words are displayed."
+        android:tooltipText="@string/hard"
         app:layout_constraintStart_toStartOf="@+id/medium"
         app:layout_constraintTop_toBottomOf="@+id/medium" />
 
@@ -71,7 +72,7 @@
         android:layout_marginTop="16dp"
         android:text="Extra Hard"
         android:textAlignment="center"
-        android:tooltipText="Words are classified as either boring or not boring, and only 50% of the words are displayed."
+        android:tooltipText="@string/extra_hard"
         app:layout_constraintStart_toStartOf="@+id/hard"
         app:layout_constraintTop_toBottomOf="@+id/hard" />
 
@@ -82,7 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Extreme"
-        android:tooltipText="No additional information is given,  words are unclassified, and only 25% of the words are displayed"
+        android:tooltipText="@string/impossible"
         app:layout_constraintStart_toStartOf="@+id/extra_hard"
         app:layout_constraintTop_toBottomOf="@+id/extra_hard" />
 

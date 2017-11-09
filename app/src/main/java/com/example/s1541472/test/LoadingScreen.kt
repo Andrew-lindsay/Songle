@@ -14,7 +14,7 @@ class LoadingScreen : AppCompatActivity() {
         setContentView(R.layout.activity_loading_screen)
 
 
-        Snackbar.make( rootitem, "Maps Download has Failed", Snackbar.LENGTH_INDEFINITE)
+       Snackbar.make( rootitem, "Maps Download has Failed", Snackbar.LENGTH_INDEFINITE)
                 .setAction("Retry", MyUndoListener()).show()
 
     }

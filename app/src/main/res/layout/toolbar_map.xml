@@ -34,39 +34,58 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="center"
+                >
 
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/NavBackground">
                 <ImageView
                     android:id="@+id/imageView3"
                     android:layout_marginTop="?attr/actionBarSize"
                     android:layout_marginLeft="80dp"
                     android:layout_width="100dp"
                     android:layout_height="136dp"
-                    app:srcCompat="@drawable/note" />
+                    app:srcCompat="@drawable/note"
+                    />
+                </LinearLayout>
+
 
                 <Button
                     android:id="@+id/navCollect"
                     style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
                     android:text="Words Collected"
                     android:drawableStart="@drawable/ic_book"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1">
                 </Button>
 
+
+                <Switch
+                    android:id="@+id/locFollow"
+                    android:paddingLeft="10dp"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Enable camera Track"
+                    android:drawableStart="@drawable/ic_camer_move"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
                 <Button
                     android:id="@+id/navHelp"
                     style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
                     android:text="Help"
+                    android:drawableStart="@drawable/ic_help"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1">
                 </Button>
-
 
 
                 <ListView

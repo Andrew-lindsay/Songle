@@ -64,8 +64,8 @@ class DifficultySelect : AppCompatActivity() {
     private fun infoShow(){
 
         var infoBuilder = AlertDialog.Builder(this).setPositiveButton("Ok", {_,_ ->})
-                .setMessage("Press and hold for info on difficulty level")
-                .setTitle("What do the Difficulties mean").create().show()
+                .setMessage("Press and hold on a difficulty levels button for more information on what that difficulty contains.")
+                .setTitle("What do the Difficulties mean?").create().show()
     }
 
 }

@@ -10,19 +10,21 @@ import kotlinx.android.synthetic.main.activity_song_select.*
 import android.widget.AdapterView.OnItemClickListener
 import android.content.ActivityNotFoundException
 import android.net.Uri
+import android.support.design.widget.Snackbar
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
-import kotlinx.android.synthetic.main.activity_main.*
-
 
 class SongSelectActivity : AppCompatActivity() {
 
     var songs = ArrayList<Song>()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_select)
+
+        Random.setOnClickListener { songDownloadFail() }
 
         for(i in 1..12){
             val song1 = Song(title = "${i}", number = 1, artist = "me", link = "None", complete = 0)
@@ -30,11 +32,14 @@ class SongSelectActivity : AppCompatActivity() {
         }
 
         val song1 = Song(title = "Bohemian Rhapsody", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 1)
+        val song2 = Song(title = "I Fought the Law", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 1)
         songs.add(5,song1)
+        songs.add(7,song2)
 
         val adapter = ArrayAdapter(this,R.layout.simplerow,songs)
 
         songList.adapter = adapter
+
         val infoBuilder = AlertDialog.Builder(this)
 
         songList.onItemClickListener = object: OnItemClickListener {
@@ -132,4 +137,14 @@ class SongSelectActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun songDownloadFail(){
+
+        Snackbar.make(topLayer , "Song list download has failed", Snackbar.LENGTH_INDEFINITE)
+                .setAction("Retry", View.OnClickListener {
+
+                }).show()
+
+    }
+
 }
