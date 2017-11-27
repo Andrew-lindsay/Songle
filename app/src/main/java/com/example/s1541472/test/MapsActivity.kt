@@ -48,8 +48,6 @@ import kotlinx.android.synthetic.main.toolbar_map.*
 import java.io.File
 import java.io.FileInputStream
 
-
-
 class MapsActivity : AppCompatActivity()
         ,OnMapReadyCallback
         ,GoogleApiClient.ConnectionCallbacks

@@ -16,13 +16,13 @@ import java.text.FieldPosition
  */
 class songListAdapter(val songs:ArrayList<Song>,val cxt:Context) :ArrayAdapter<Song>(cxt,0,songs) {
 
-    override fun getCount(): Int {
-        return songs.size
-    }
-
-    override fun getItem(position: Int): Song {
-        return songs[position]
-    }
+//    override fun getCount(): Int {
+//        return songs.size
+//    }
+//
+//    override fun getItem(position: Int): Song {
+//        return songs[position]
+//    }
 
     override fun getView(position:Int, convertview: View?, parent: ViewGroup): View {
 
@@ -32,7 +32,7 @@ class songListAdapter(val songs:ArrayList<Song>,val cxt:Context) :ArrayAdapter<S
 
         if(convertview == null){
             conView = LayoutInflater.from(cxt).inflate(R.layout.custom_list_adp, parent, false)
-            conView.songTitle.setText(songNow.title)
+            conView.songTitle.text = songNow.title
 
             val stars = arrayOf(conView.star1,conView.star2,conView.star3,conView.star4,conView.star5)
 
