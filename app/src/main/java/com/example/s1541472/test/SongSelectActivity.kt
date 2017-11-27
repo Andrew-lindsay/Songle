@@ -136,7 +136,12 @@ class SongSelectActivity : AppCompatActivity() {
         //takes array list of songs
         val compAdapter = songListAdapter(songs,this)
 
+        songs.map { println(it) }
+
+
         compList.adapter = compAdapter
+
+
 
         val diabuild = AlertDialog.Builder(this)
 

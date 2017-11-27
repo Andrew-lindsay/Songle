@@ -29,22 +29,21 @@ class songListAdapter(val songs:ArrayList<Song>,val cxt:Context) :ArrayAdapter<S
         var conView:View
 
         val songNow = getItem(position)
+        println(songNow.title + " " +position)
 
-        if(convertview == null){
-            conView = LayoutInflater.from(cxt).inflate(R.layout.custom_list_adp, parent, false)
-            conView.songTitle.text = songNow.title
 
-            val stars = arrayOf(conView.star1,conView.star2,conView.star3,conView.star4,conView.star5)
 
-            val num_stars = if (songNow.complete > 0) songNow.complete - 1  else 0
+        conView = LayoutInflater.from(cxt).inflate(R.layout.custom_list_adp, parent, false)
+        conView.songTitle.text = songNow.title
 
-            for(i in 0..num_stars){
-                stars[i].setImageResource(android.R.drawable.btn_star_big_on)
-            }
+        val stars = arrayOf(conView.star1,conView.star2,conView.star3,conView.star4,conView.star5)
 
-            return conView
+        val num_stars = if (songNow.complete > 0) songNow.complete - 1  else 0
 
+        for(i in 0..num_stars){
+            stars[i].setImageResource(android.R.drawable.btn_star_big_on)
         }
-        return convertview
+
+        return conView
     }
 }
