@@ -9,19 +9,33 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_difficulty_select.*
+import java.lang.Math
 
 
 class DifficultySelect : AppCompatActivity() {
 
-
+   val diffMessage:String = "songle.difficultySet"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_difficulty_select)
 
-        easy.setOnClickListener { switchToMap() }
-        medium.setOnClickListener {switchToSonglist() }
-        hard.setOnClickListener {switchToLoading()}
+        /*
+        Difficulty  Number
+        easy        0
+        medium      1
+        hard        2
+        extra_hard  3
+        extreme     4
+        */
+
+        //diff buttons
+        easy.setOnClickListener { switchToSonglist(0) }
+        medium.setOnClickListener{ switchToSonglist(1) }
+        hard.setOnClickListener { switchToSonglist(2) }
+        extra_hard.setOnClickListener { switchToLoading() }
+        Extreme.setOnClickListener { switchToMap() }
+        random.setOnClickListener{switchToSonglist(randDiff())}
 
     }
 
@@ -44,9 +58,9 @@ class DifficultySelect : AppCompatActivity() {
         }
     }
 
-
-    private fun switchToSonglist(){
+    private fun switchToSonglist(diff:Int){
         val intent = Intent(this,SongSelectActivity::class.java)
+        intent.putExtra(diffMessage,diff)
         startActivity(intent)
     }
 
@@ -66,6 +80,10 @@ class DifficultySelect : AppCompatActivity() {
         var infoBuilder = AlertDialog.Builder(this).setPositiveButton("Ok", {_,_ ->})
                 .setMessage("Press and hold on a difficulty levels button for more information on what that difficulty contains.")
                 .setTitle("What do the Difficulties mean?").create().show()
+    }
+
+    private fun randDiff():Int{
+        return (Math.random()*10).toInt() % 5
     }
 
 }

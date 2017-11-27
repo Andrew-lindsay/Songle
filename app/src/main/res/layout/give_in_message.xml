@@ -14,17 +14,17 @@
         android:id="@+id/txtCor"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fontFamily="cursive"
-        android:text="Congratualtions"
+        android:fontFamily="sans-serif"
+        android:text="Oh Well"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Display3" />
     <!--<ImageView-->
-        <!--android:id="@+id/imageView5"-->
-        <!--android:layout_width="80dp"-->
-        <!--android:layout_height="136dp"-->
-      <!---->
-        <!--android:layout_marginBottom="204dp"-->
-        <!--app:srcCompat="@drawable/note" />-->
+    <!--android:id="@+id/imageView5"-->
+    <!--android:layout_width="80dp"-->
+    <!--android:layout_height="136dp"-->
+    <!---->
+    <!--android:layout_marginBottom="204dp"-->
+    <!--app:srcCompat="@drawable/note" />-->
 
 
     <TextView
@@ -35,7 +35,7 @@
         android:paddingLeft="50dp"
         android:paddingRight="50dp"
         android:paddingTop="10dp"
-        android:text="@string/well_done"
+        android:text="@string/you_failed"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textSize="18sp" />
 
@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:srcCompat="@android:drawable/btn_star_big_on" />
+            app:srcCompat="@android:drawable/btn_star_big_off" />
 
         <ImageView
             android:id="@+id/star3"

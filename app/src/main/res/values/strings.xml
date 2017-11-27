@@ -8,6 +8,7 @@
     <string name="welcome_title">Welcome to Songle</string>
     <string name="ok">ok</string>
     <string name="well_done">You have correctly guessed the name of the song</string>
+    <string name="you_failed">It seems you were not able to guess the song, have a star anyway</string>
     <string name="easy">Words are  classified as  either boring , not boring , interesting or very- interesting , and all of the words are displayed.</string>
     <string name="medium">Words are classified as either boring , not boring or interesting , and all of the words are displayed.</string>
     <string name="hard">Words are classified as either boring, not boring or interesting, and only 75% of the words are displayed.</string>

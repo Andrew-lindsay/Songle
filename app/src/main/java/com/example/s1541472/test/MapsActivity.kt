@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
@@ -32,6 +33,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 
 import com.google.android.gms.maps.model.LatLngBounds
@@ -62,7 +64,7 @@ class MapsActivity : AppCompatActivity()
     private var mLastLocation : Location? = null
     val TAG = "MapsActivity"
     lateinit var rfile: File
-    private val songName: String = "Bo"
+    private val songName: String = "Bohemian Rhapsody"
     private val link: String = "https://youtu.be/fJ9rUzIMcZQ"
 
 
@@ -75,9 +77,11 @@ class MapsActivity : AppCompatActivity()
 
 //        val mDrawerToggle = ActionBarDrawerToggle(this, drawer_layout, 0, 0)
 
-        toolbar.setNavigationOnClickListener {navBarOpen() }
+        toolbar.setNavigationOnClickListener { navBarOpen() }
 
         navCollect.setOnClickListener { wordCollect() }
+
+
 
 
 
@@ -156,7 +160,7 @@ class MapsActivity : AppCompatActivity()
             try {
                 mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
             }catch(se:IllegalStateException){
-                println("fuck")
+                println("broken")
                 println(mGoogleApiClient.isConnected)
             }
         }else{
@@ -174,6 +178,13 @@ class MapsActivity : AppCompatActivity()
         }else{
             //update location need for location button
             mLastLocation = current
+//
+//            mMap.addCircle(CircleOptions()
+//                    .center(LatLng(current.latitude, current.longitude))
+//                    .radius(12.0)
+//                    .strokeColor(Color.RED))
+
+
             val currentloc = LatLng(current.latitude,current.longitude)
             mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
             println("Location changed")
@@ -229,6 +240,9 @@ class MapsActivity : AppCompatActivity()
             }
                 true
         }
+
+
+
         //alternative way is to user the xml
         val client = AsyncHttpClient()
         client.get("https://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/01/map5.txt", object : FileAsyncHttpResponseHandler(/* Context */this) {
@@ -341,9 +355,7 @@ class MapsActivity : AppCompatActivity()
 
                 congratBuilder
                         .setView(a)
-                        .setPositiveButton("play Song",{_,_ ->
-                            watchVideoLink(link)
-                        }).setNegativeButton("return" ,{ _ , _ ->
+                        .setNegativeButton("return" ,{ _ , _ ->
                             switchtoSongSelect()
                 }).setOnDismissListener { super.onBackPressed() }
 
@@ -390,7 +402,16 @@ class MapsActivity : AppCompatActivity()
                         .setPositiveButton("Ok",{_,_ ->
 
                         }).setMessage("the, Forrest, will, rise, appropriation").create().show()
+            }
 
+            private fun collect(){
+                val wordBuilder = AlertDialog.Builder(this)
+                wordBuilder
+                        .setTitle("Word Collected:")
+                        .setView(R.layout.word_collected)
+                        .setPositiveButton("Ok",{_,_ ->
+
+                        }).create().show()
 
             }
 

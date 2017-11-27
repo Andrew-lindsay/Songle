@@ -9,8 +9,10 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_song_select.*
 import android.widget.AdapterView.OnItemClickListener
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.net.Uri
 import android.support.design.widget.Snackbar
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
@@ -19,11 +21,31 @@ class SongSelectActivity : AppCompatActivity() {
 
     var songs = ArrayList<Song>()
 
+    //difficulty default is 0(easy)
+    var diff: Int = 0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_select)
 
+        val intent = intent
+
+        diff = intent.getIntExtra("songle.difficultySet",0)
+
+        //diff default is easy
+        println("Difficulty Set: " + diff)
+
+        //change Title displayed in action bar
+        when(diff){
+            0 -> title = "Easy"
+            1 -> title = "Medium"
+            2 -> title = "Hard"
+            3 -> title = "Extra Hard"
+            4 -> title = "Extreme"
+            else -> title = "ERROR"
+        }
+        
         Random.setOnClickListener { songDownloadFail() }
 
         for(i in 1..12){
@@ -36,6 +58,7 @@ class SongSelectActivity : AppCompatActivity() {
         songs.add(5,song1)
         songs.add(7,song2)
 
+        //run after download and parsing
         val adapter = ArrayAdapter(this,R.layout.simplerow,songs)
 
         songList.adapter = adapter
@@ -89,9 +112,7 @@ class SongSelectActivity : AppCompatActivity() {
         val complist = ArrayList<Song>()
 
         val s = Song(title = "Bohemian Rhapsody", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 1)
-        val r = Song(title = "Hello and welcome to the beginning", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 2)
-        complist.add(s)
-        complist.add(s)
+        val r = Song(title = "I Fought the Law", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 2)
         complist.add(s)
         complist.add(r)
 
@@ -101,11 +122,11 @@ class SongSelectActivity : AppCompatActivity() {
 
         val diabuild = AlertDialog.Builder(this)
 
-
-
+        //building completed song List
+        val inflater = layoutInflater
+        val ve = inflater.inflate(R.layout.word_collected,null)
         diabuild.setView(list)
-                .setTitle("Completed Songs")
-
+                .setCustomTitle(ve)
         val songComp = diabuild.create()
 
 
