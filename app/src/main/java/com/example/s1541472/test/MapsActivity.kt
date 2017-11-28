@@ -1,9 +1,7 @@
 package com.example.s1541472.test
 
 import android.Manifest
-import android.content.ActivityNotFoundException
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -63,9 +61,9 @@ class MapsActivity : AppCompatActivity()
     val TAG = "MapsActivity"
     lateinit var rfile: File
 
-    private val songName: String = "Bohemian Rhapsody"
+    lateinit var songName: String
     private val link: String = "https://youtu.be/fJ9rUzIMcZQ"
-
+    private lateinit var getSongCompleted: SharedPreferences
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,8 +82,16 @@ class MapsActivity : AppCompatActivity()
 
         val diff = intent.getIntExtra("songle.difficultyTransfer",0)
 
+        //set song name from songSelect activity
+        songName = intent.getStringExtra("songle.songName")
 
+        println("Song to guess " + songName)
 
+        val PREF_FILE = "CompletedSongs${diff}"
+
+        println("Difficulty: " + diff)
+
+        getSongCompleted = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
 
         //items in list---------------------
@@ -244,8 +250,6 @@ class MapsActivity : AppCompatActivity()
                 true
         }
 
-
-
         //alternative way is to user the xml
         val client = AsyncHttpClient()
         client.get("https://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/01/map5.txt", object : FileAsyncHttpResponseHandler(/* Context */this) {
@@ -265,16 +269,13 @@ class MapsActivity : AppCompatActivity()
             }
         })
 
-
-
 //        if(ContextCompat.checkSelfPermission(this,
 //                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 //            //no last location ready yet
 //            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
 //        }
-
-
     }
+
             override fun onBackPressed() {
                 val exitBuilder = AlertDialog.Builder(this)
 //                var txtView = EditText(this)
@@ -291,7 +292,7 @@ class MapsActivity : AppCompatActivity()
 
             }
 
-            fun guessButtonPress() {
+            private fun guessButtonPress() {
 
                 val exitBuilder = AlertDialog.Builder(this)
 
@@ -359,8 +360,14 @@ class MapsActivity : AppCompatActivity()
                 congratBuilder
                         .setView(a)
                         .setNegativeButton("return" ,{ _ , _ ->
-                            switchtoSongSelect()
-                }).setOnDismissListener { super.onBackPressed() }
+
+                            onSongCompleted()
+                            super.onBackPressed()
+
+                }).setOnDismissListener {
+                    onSongCompleted()
+                    super.onBackPressed()
+                }
 
                 val congratDialog = congratBuilder.create()
 
@@ -394,9 +401,8 @@ class MapsActivity : AppCompatActivity()
                 }else{
                     drawer_layout.openDrawer(GravityCompat.START)
                 }
-
-
             }
+
             private fun wordCollect(){
                 val exitBuilder  = AlertDialog.Builder(this)
 
@@ -418,6 +424,11 @@ class MapsActivity : AppCompatActivity()
 
             }
 
+            private fun onSongCompleted(){
+                var setSongComplete = getSongCompleted.edit()
+                setSongComplete.putInt(songName,1)
+                setSongComplete.apply()
             }
+        }
 
 

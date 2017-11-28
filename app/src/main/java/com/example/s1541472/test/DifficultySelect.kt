@@ -34,7 +34,7 @@ class DifficultySelect : AppCompatActivity() {
         medium.setOnClickListener{ switchToSonglist(1) }
         hard.setOnClickListener { switchToSonglist(2) }
         extra_hard.setOnClickListener { switchToLoading() }
-        Extreme.setOnClickListener { switchToMap() }
+        Extreme.setOnClickListener { switchToSonglist(4) }
         random.setOnClickListener{switchToSonglist(randDiff())}
 
     }

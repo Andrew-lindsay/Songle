@@ -18,6 +18,7 @@ import android.widget.*
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.FileAsyncHttpResponseHandler
 import cz.msebera.android.httpclient.Header
+import kotlinx.android.synthetic.main.custom_list_adp.*
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.File
@@ -68,7 +69,12 @@ class SongSelectActivity : AppCompatActivity() {
         //aync download task
         downloadSongs()
 
-        Random.setOnClickListener {  }
+        Random.setOnClickListener {
+            if(songs.size != 0) {
+                val index = ((Math.random() * 100).toInt() % songs.size)
+                switchtoMap(songs[index].title)
+            }
+        }
 
         //testing code
 //        for(i in 1..12){
@@ -108,7 +114,7 @@ class SongSelectActivity : AppCompatActivity() {
                     })
                     infoBuilder.setNegativeButton("Play again", DialogInterface.OnClickListener { dialog, id ->
                         // User clicked play again button
-                        switchtoMap()
+                        switchtoMap(entrySong.title)
 
                     })
                     infoBuilder.setNeutralButton("Listen",DialogInterface.OnClickListener { dialog, id ->
@@ -116,10 +122,20 @@ class SongSelectActivity : AppCompatActivity() {
                     })
                     infoBuilder.create().show()
 
-                }else switchtoMap()
+                }else switchtoMap(entrySong.title)
 
             }
         }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onRestart() {
+        refreshSongList()
+        super.onRestart()
 
     }
 
@@ -173,12 +189,26 @@ class SongSelectActivity : AppCompatActivity() {
         }
     }
 
-    private fun switchtoMap(){
+    private fun refreshSongList(){
+        songs.map{ println("Title: " + it.title +" complete: " + it.complete) }
+        println()
+        songs.map{ it.complete = getSongCompleted.getInt(it.title,0)}
+        songs.map{ println("Title: " + it.title +" complete: " + it.complete) }
+
+        var adapter = ArrayAdapter(this@SongSelectActivity,R.layout.simplerow,songs)
+        songList.adapter = adapter
+
+    }
+
+    //change activity
+    private fun switchtoMap(songTitle:String){
         val intent = Intent(this,MapsActivity::class.java)
         intent.putExtra(diffSend,diff)
+        intent.putExtra("songle.songName",songTitle)
         startActivity(intent)
     }
 
+    //switch to youtube to play song link
     fun watchVideoLink(id: String) {
 
         val id_fix = id.substring(17,id.length)
@@ -225,6 +255,8 @@ class SongSelectActivity : AppCompatActivity() {
 
                 songList.adapter = adapter
 
+
+
                 }
 
             override fun onFailure(statusCode: Int, headers: Array<out Header>?, throwable: Throwable?, file: File?) {
@@ -242,6 +274,8 @@ class SongSelectActivity : AppCompatActivity() {
             }
         })
     }
+
+    //XML parser starts here
 
     @Throws(XmlPullParserException::class,IOException::class)
     fun parseXml(strm:FileInputStream):ArrayList<Song>{
@@ -302,7 +336,7 @@ class SongSelectActivity : AppCompatActivity() {
 
         //accessing preference files
         completed = getSongCompleted.getInt(title,0)
-
+        println(">>> XML parser create song completed: " + completed + " Title: " + title)
         return Song(number,artist,title,link,completed)
     }
 
