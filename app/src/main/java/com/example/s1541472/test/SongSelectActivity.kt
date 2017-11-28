@@ -1,14 +1,12 @@
 package com.example.s1541472.test
 
 import android.app.AlertDialog
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import kotlinx.android.synthetic.main.activity_song_select.*
 import android.widget.AdapterView.OnItemClickListener
-import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.support.design.widget.Snackbar
 
@@ -25,7 +23,10 @@ import org.xmlpull.v1.XmlPullParserException
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.util.*
+import java.util.Collections.checkedCollection
 import java.util.Collections.shuffle
+import kotlin.collections.ArrayList
 
 class SongSelectActivity : AppCompatActivity() {
 
@@ -34,6 +35,10 @@ class SongSelectActivity : AppCompatActivity() {
     //difficulty default is 0(easy)
     var diff: Int = 0
 
+    val diffSend:String = "songle.difficultyTransfer"
+
+    lateinit var getSongCompleted: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_select)
@@ -41,6 +46,13 @@ class SongSelectActivity : AppCompatActivity() {
         val intent = intent
 
         diff = intent.getIntExtra("songle.difficultySet",0)
+
+        val PREF_FILE = "CompletedSongs${diff}"
+
+        getSongCompleted = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+
+        //debug
+        println(PREF_FILE)
 
         //diff default is easy
         println("Difficulty Set: " + diff)
@@ -57,8 +69,6 @@ class SongSelectActivity : AppCompatActivity() {
         downloadSongs()
 
         Random.setOnClickListener {  }
-
-
 
         //testing code
 //        for(i in 1..12){
@@ -99,6 +109,7 @@ class SongSelectActivity : AppCompatActivity() {
                     infoBuilder.setNegativeButton("Play again", DialogInterface.OnClickListener { dialog, id ->
                         // User clicked play again button
                         switchtoMap()
+
                     })
                     infoBuilder.setNeutralButton("Listen",DialogInterface.OnClickListener { dialog, id ->
                         watchVideoLink(entrySong.link)
@@ -135,7 +146,9 @@ class SongSelectActivity : AppCompatActivity() {
 
         //custom list adapter written to get stars to display properly
         //takes array list of songs
-        val compAdapter = songListAdapter(songs,this)
+
+        //quick fix will edit later
+        val compAdapter = songListAdapter(ArrayList(songs.filter { it.complete > 0 }),this)
 
         songs.map { println(it) }
 
@@ -162,8 +175,8 @@ class SongSelectActivity : AppCompatActivity() {
 
     private fun switchtoMap(){
         val intent = Intent(this,MapsActivity::class.java)
+        intent.putExtra(diffSend,diff)
         startActivity(intent)
-
     }
 
     fun watchVideoLink(id: String) {
@@ -197,7 +210,6 @@ class SongSelectActivity : AppCompatActivity() {
 
             override fun onSuccess(statusCode: Int, headers: Array<Header>, response: File) {
 
-
                 //have to parse here or download in a previous download activity
                 println(response.toString())
 
@@ -216,12 +228,11 @@ class SongSelectActivity : AppCompatActivity() {
                 }
 
             override fun onFailure(statusCode: Int, headers: Array<out Header>?, throwable: Throwable?, file: File?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                songDownloadFail()
                 println(">>> file failed to download")
             }
 
             override fun onUserException(error: Throwable?) {
-
                 println("you fucked up, man")
                 songDownloadFail()
             }
@@ -274,6 +285,7 @@ class SongSelectActivity : AppCompatActivity() {
         var artist = ""
         var title = ""
         var link = ""
+        var completed = 0
 
         while(parser.next() != XmlPullParser.END_TAG){
             if(parser.eventType != XmlPullParser.START_TAG){
@@ -287,7 +299,11 @@ class SongSelectActivity : AppCompatActivity() {
                 else -> skip(parser)
             }
         }
-        return Song(number,artist,title,link)
+
+        //accessing preference files
+        completed = getSongCompleted.getInt(title,0)
+
+        return Song(number,artist,title,link,completed)
     }
 
 

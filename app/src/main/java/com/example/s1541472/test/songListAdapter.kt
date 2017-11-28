@@ -31,8 +31,6 @@ class songListAdapter(val songs:ArrayList<Song>,val cxt:Context) :ArrayAdapter<S
         val songNow = getItem(position)
         println(songNow.title + " " +position)
 
-
-
         conView = LayoutInflater.from(cxt).inflate(R.layout.custom_list_adp, parent, false)
         conView.songTitle.text = songNow.title
 

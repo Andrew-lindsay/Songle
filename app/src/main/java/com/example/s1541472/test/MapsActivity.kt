@@ -62,6 +62,7 @@ class MapsActivity : AppCompatActivity()
     private var mLastLocation : Location? = null
     val TAG = "MapsActivity"
     lateinit var rfile: File
+
     private val songName: String = "Bohemian Rhapsody"
     private val link: String = "https://youtu.be/fJ9rUzIMcZQ"
 
@@ -78,6 +79,10 @@ class MapsActivity : AppCompatActivity()
         toolbar.setNavigationOnClickListener { navBarOpen() }
 
         navCollect.setOnClickListener { wordCollect() }
+
+        val intent = intent
+
+        val diff = intent.getIntExtra("songle.difficultyTransfer",0)
 
 
 
