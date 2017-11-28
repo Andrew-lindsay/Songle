@@ -25,6 +25,7 @@ import org.xmlpull.v1.XmlPullParserException
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.util.Collections.shuffle
 
 class SongSelectActivity : AppCompatActivity() {
 
@@ -138,10 +139,7 @@ class SongSelectActivity : AppCompatActivity() {
 
         songs.map { println(it) }
 
-
         compList.adapter = compAdapter
-
-
 
         val diabuild = AlertDialog.Builder(this)
 
@@ -206,6 +204,10 @@ class SongSelectActivity : AppCompatActivity() {
                 var songStrm: FileInputStream = FileInputStream(response)
 
                 songs = parseXml(songStrm)
+
+                //error must fix probably not seeding properly
+
+                shuffle(songs,java.util.Random(diff.toLong()))
 
                 var adapter = ArrayAdapter(this@SongSelectActivity,R.layout.simplerow,songs)
 
