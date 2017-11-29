@@ -39,9 +39,8 @@ class LoadingScreen : AppCompatActivity() {
 
         val songNumber:Int = intent.getIntExtra("songle.songNumber",0)
 
-        intentMap.putExtra("songle.difficultyTransfer",diffmap)
+        intentMap.putExtra("songle.difficultyTransfer",diff)
         intentMap.putExtra("songle.songName",songName)
-
 
         val songNumStr:String = if(songNumber > 9) songNumber.toString() else ("0" + songNumber)
 
@@ -73,6 +72,7 @@ class LoadingScreen : AppCompatActivity() {
             }
 
             override fun onFailure(statusCode: Int, headers: Array<out Header>?, throwable: Throwable?, file: File?) {
+
                     println(">>> Failed to download: Map Data")
                         Snackbar.make( rootitem, "Maps Download has Failed", Snackbar.LENGTH_INDEFINITE)
                         .setAction("Retry", View.OnClickListener {
@@ -99,6 +99,7 @@ class LoadingScreen : AppCompatActivity() {
                 println(">>> File downloaded: Lyrics")
                 //switch activity
                 startActivity(intentMap)
+                finish()
             }
 
             override fun onFailure(statusCode: Int, headers: Array<out Header>?, throwable: Throwable?, file: File?) {

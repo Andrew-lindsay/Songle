@@ -22,8 +22,6 @@
 
         </FrameLayout>
 
-
-
         <android.support.design.widget.NavigationView
             android:id="@+id/navigation"
             android:layout_width="wrap_content"
@@ -37,7 +35,6 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 >
-
 
                 <LinearLayout
                     android:layout_width="fill_parent"
@@ -53,7 +50,6 @@
                     />
                 </LinearLayout>
 
-
                 <Button
                     android:id="@+id/navCollect"
                     style="@style/Widget.AppCompat.Button.Borderless"
@@ -65,16 +61,16 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1">
                 </Button>
 
-
                 <Switch
                     android:id="@+id/locFollow"
-                    android:paddingLeft="10dp"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:text="Enable camera Track"
+                    android:checked="true"
                     android:drawableStart="@drawable/ic_camer_move"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+                    android:paddingLeft="10dp"
+                    android:text="Enable camera Track"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
                 <Button
                     android:id="@+id/navHelp"
@@ -87,19 +83,15 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1">
                 </Button>
 
-
                 <ListView
                 android:id="@+id/drawerList"
                 android:layout_marginBottom="8dp"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent" />
 
-
         </LinearLayout>
 
-
         </android.support.design.widget.NavigationView>
-
 
     </android.support.v4.widget.DrawerLayout>
 
@@ -116,7 +108,5 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         </android.support.design.widget.AppBarLayout>
-
-
 
 </RelativeLayout>

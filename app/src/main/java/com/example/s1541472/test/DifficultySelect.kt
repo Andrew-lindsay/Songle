@@ -11,7 +11,10 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_difficulty_select.*
 import java.lang.Math
 
-
+/**
+ * @author Andrew Lindsay
+ * @version 0.000001 pre-alpha
+ */
 class DifficultySelect : AppCompatActivity() {
 
    val diffMessage:String = "songle.difficultySet"

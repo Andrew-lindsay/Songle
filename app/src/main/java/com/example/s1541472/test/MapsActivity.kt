@@ -32,6 +32,10 @@ import kotlinx.android.synthetic.main.toolbar_map.*
 import java.io.File
 import java.io.FileInputStream
 
+/**
+ * @author Andrew Lindsay
+ * @version 0.000001 pre-alpha
+ */
 class MapsActivity : AppCompatActivity()
         ,OnMapReadyCallback
         ,GoogleApiClient.ConnectionCallbacks
@@ -51,6 +55,7 @@ class MapsActivity : AppCompatActivity()
     private lateinit var getSongCompleted: SharedPreferences
     private lateinit var markerFile:File
     private lateinit var lyricFile:File
+    private var diff:Int = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,41 +72,26 @@ class MapsActivity : AppCompatActivity()
 
         val intent = intent
 
-        val diff = intent.getIntExtra("songle.difficultyTransfer",0)
 
-        //set song name from songSelect activity
+
+        //get intent information
+        diff = intent.getIntExtra("songle.difficultyTransfer",0)
         songName = intent.getStringExtra("songle.songName")
         val mapFilePath = intent.getStringExtra("songle.mapFilePath")
         val lyricFilePath = intent.getStringExtra("songle.lyricsFilePath")
 
-       markerFile = File(mapFilePath)
+        //file paths
+        markerFile = File(mapFilePath)
+        lyricFile = File(lyricFilePath)
 
-       lyricFile = File(lyricFilePath)
+        println(">>> Song to guess " + songName)
 
-
-        println("Song to guess " + songName)
-
+        //get song completion preference file to add to later if song completed
         val PREF_FILE = "CompletedSongs${diff}"
 
         println("Difficulty: " + diff)
 
         getSongCompleted = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
-
-
-
-        //items in list---------------------
-//        val strs = ArrayList<String>()
-//
-//        strs.add("Words Collected")
-//        strs.add("help")
-//
-//        val adp = ArrayAdapter(this,R.layout.simplerow,strs)
-//
-//        drawerList.adapter = adp
-//
-//
-//        //-----------------------------------
-
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -177,11 +167,13 @@ class MapsActivity : AppCompatActivity()
 
     // changed when location updated main logic for being near markers goes here ?
     override fun onLocationChanged(current: Location?) {
+
         if(current == null){
             println("[onLocationChanged] unknown location")
         }else{
+
             //update location need for location button
-            mLastLocation = current
+//            mLastLocation = current
 //
 //            mMap.addCircle(CircleOptions()
 //                    .center(LatLng(current.latitude, current.longitude))
@@ -190,10 +182,12 @@ class MapsActivity : AppCompatActivity()
 
 
             val currentloc = LatLng(current.latitude,current.longitude)
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
-            println("Location changed")
 
-            //set up tracking
+            if(locFollow.isChecked) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
+            }
+
+            println(">>>Location changed")
         }
     }
 
@@ -240,30 +234,25 @@ class MapsActivity : AppCompatActivity()
 
         mMap.setOnMyLocationButtonClickListener {
             //my god this code is terrible can be fixed by calling google api and not assigning mLastLocation in on location change
-            if(mLastLocation != null){
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom( LatLng(mLastLocation!!.latitude, mLastLocation!!.longitude),20F))
+
+            if(ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                //no last location ready yet
+                val mLastLocation1 = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
+
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        LatLng(mLastLocation1.latitude, mLastLocation1.longitude), 20F))
             }
-                true
+            true
         }
 
-        //alternative way is to user the xml
-
-
-
+        //set KML file now
         println(markerFile.toString())
-        println("hi")
+        println(">>> KML files being placed on map")
         var kmlInputstream  = FileInputStream(markerFile)
         var layer = KmlLayer(mMap, kmlInputstream, applicationContext)
         layer.addLayerToMap()
 
-
-
-
-//        if(ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//            //no last location ready yet
-//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
-//        }
     }
 
             override fun onBackPressed() {
@@ -414,6 +403,7 @@ class MapsActivity : AppCompatActivity()
             }
 
             private fun onSongCompleted(){
+                println(">>> $diff")
                 var setSongComplete = getSongCompleted.edit()
                 setSongComplete.putInt(songName,1)
                 setSongComplete.apply()

@@ -25,7 +25,10 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.util.Collections.shuffle
 import kotlin.collections.ArrayList
-
+/**
+ * @author Andrew Lindsay
+ * @version 0.000001 pre-alpha
+ */
 class SongSelectActivity : AppCompatActivity() {
 
     var songs = ArrayList<Song>()
@@ -187,8 +190,9 @@ class SongSelectActivity : AppCompatActivity() {
     }
 
     private fun refreshSongList(){
+        println(">>> difficulty SSA: $diff")
         songs.map{ println("Title: " + it.title +" complete: " + it.complete) }
-        println()
+        println("++++++")
         songs.map{ it.complete = getSongCompleted.getInt(it.title,0)}
         songs.map{ println("Title: " + it.title +" complete: " + it.complete) }
 
