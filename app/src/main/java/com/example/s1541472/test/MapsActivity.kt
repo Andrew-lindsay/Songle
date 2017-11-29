@@ -3,7 +3,6 @@ package com.example.s1541472.test
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
@@ -11,15 +10,8 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBar
-import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
 import com.google.android.gms.common.ConnectionResult
@@ -31,16 +23,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
-
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.data.kml.KmlLayer
-import com.loopj.android.http.AsyncHttpClient
-import com.loopj.android.http.FileAsyncHttpResponseHandler
-import cz.msebera.android.httpclient.Header
 import kotlinx.android.synthetic.main.activity_maps.*
-import kotlinx.android.synthetic.main.guess_song_layout.*
 import kotlinx.android.synthetic.main.guess_song_layout.view.*
 import kotlinx.android.synthetic.main.toolbar_map.*
 import java.io.File
@@ -53,17 +39,18 @@ class MapsActivity : AppCompatActivity()
         ,LocationListener
         {
 
+
     private lateinit var mMap: GoogleMap
     private lateinit var mGoogleApiClient: GoogleApiClient
     val PERMSISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
     var mLocationPermissionGranted = false
     private var mLastLocation : Location? = null
     val TAG = "MapsActivity"
-    lateinit var rfile: File
-
-    lateinit var songName: String
+    private lateinit var songName: String
     private val link: String = "https://youtu.be/fJ9rUzIMcZQ"
     private lateinit var getSongCompleted: SharedPreferences
+    private lateinit var markerFile:File
+    private lateinit var lyricFile:File
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +71,13 @@ class MapsActivity : AppCompatActivity()
 
         //set song name from songSelect activity
         songName = intent.getStringExtra("songle.songName")
+        val mapFilePath = intent.getStringExtra("songle.mapFilePath")
+        val lyricFilePath = intent.getStringExtra("songle.lyricsFilePath")
+
+       markerFile = File(mapFilePath)
+
+       lyricFile = File(lyricFilePath)
+
 
         println("Song to guess " + songName)
 
@@ -92,6 +86,7 @@ class MapsActivity : AppCompatActivity()
         println("Difficulty: " + diff)
 
         getSongCompleted = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+
 
 
         //items in list---------------------
@@ -222,6 +217,7 @@ class MapsActivity : AppCompatActivity()
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
+
         mMap = googleMap
 
         val mapBounds = LatLngBounds(LatLng(55.942617,-3.192473)
@@ -251,23 +247,17 @@ class MapsActivity : AppCompatActivity()
         }
 
         //alternative way is to user the xml
-        val client = AsyncHttpClient()
-        client.get("https://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/01/map5.txt", object : FileAsyncHttpResponseHandler(/* Context */this) {
-            override fun onSuccess(statusCode: Int, headers: Array<Header>, response: File) {
 
-                println(response.toString())
-                println("hi")
-                var kmlInputstream  = FileInputStream(response)
-                var layer = KmlLayer(mMap, kmlInputstream, applicationContext)
-                layer.addLayerToMap()
 
-            }
 
-            override fun onFailure(statusCode: Int, headers: Array<out Header>?, throwable: Throwable?, file: File?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                println(">>> file failed to download")
-            }
-        })
+        println(markerFile.toString())
+        println("hi")
+        var kmlInputstream  = FileInputStream(markerFile)
+        var layer = KmlLayer(mMap, kmlInputstream, applicationContext)
+        layer.addLayerToMap()
+
+
+
 
 //        if(ContextCompat.checkSelfPermission(this,
 //                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -289,7 +279,6 @@ class MapsActivity : AppCompatActivity()
                         .setNegativeButton("No",{_,_ -> })
                         .create()
                         .show()
-
             }
 
             private fun guessButtonPress() {

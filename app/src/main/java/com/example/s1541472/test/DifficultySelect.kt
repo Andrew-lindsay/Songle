@@ -29,13 +29,13 @@ class DifficultySelect : AppCompatActivity() {
         extreme     4
         */
 
-        //diff buttons
+        //difficulty select buttons
         easy.setOnClickListener { switchToSonglist(0) }
         medium.setOnClickListener{ switchToSonglist(1) }
         hard.setOnClickListener { switchToSonglist(2) }
-        extra_hard.setOnClickListener { switchToLoading() }
+        extra_hard.setOnClickListener { switchToSonglist(3) }
         Extreme.setOnClickListener { switchToSonglist(4) }
-        random.setOnClickListener{switchToSonglist(randDiff())}
+        random.setOnClickListener{ switchToSonglist(randDiff()) }
 
     }
 

@@ -18,14 +18,11 @@ import android.widget.*
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.FileAsyncHttpResponseHandler
 import cz.msebera.android.httpclient.Header
-import kotlinx.android.synthetic.main.custom_list_adp.*
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.util.*
-import java.util.Collections.checkedCollection
 import java.util.Collections.shuffle
 import kotlin.collections.ArrayList
 
@@ -72,7 +69,7 @@ class SongSelectActivity : AppCompatActivity() {
         Random.setOnClickListener {
             if(songs.size != 0) {
                 val index = ((Math.random() * 100).toInt() % songs.size)
-                switchtoMap(songs[index].title)
+                switchtoLoading(songs[index].title,songs[index].number)
             }
         }
 
@@ -114,7 +111,7 @@ class SongSelectActivity : AppCompatActivity() {
                     })
                     infoBuilder.setNegativeButton("Play again", DialogInterface.OnClickListener { dialog, id ->
                         // User clicked play again button
-                        switchtoMap(entrySong.title)
+                        switchtoLoading(entrySong.title,entrySong.number)
 
                     })
                     infoBuilder.setNeutralButton("Listen",DialogInterface.OnClickListener { dialog, id ->
@@ -122,7 +119,7 @@ class SongSelectActivity : AppCompatActivity() {
                     })
                     infoBuilder.create().show()
 
-                }else switchtoMap(entrySong.title)
+                }else switchtoLoading(entrySong.title,entrySong.number)
 
             }
         }
@@ -201,10 +198,11 @@ class SongSelectActivity : AppCompatActivity() {
     }
 
     //change activity
-    private fun switchtoMap(songTitle:String){
-        val intent = Intent(this,MapsActivity::class.java)
+    private fun switchtoLoading(songTitle:String,songNumber:Int){
+        val intent = Intent(this,LoadingScreen::class.java)
         intent.putExtra(diffSend,diff)
         intent.putExtra("songle.songName",songTitle)
+        intent.putExtra("songle.songNumber",songNumber)
         startActivity(intent)
     }
 
@@ -254,8 +252,6 @@ class SongSelectActivity : AppCompatActivity() {
                 var adapter = ArrayAdapter(this@SongSelectActivity,R.layout.simplerow,songs)
 
                 songList.adapter = adapter
-
-
 
                 }
 
@@ -336,7 +332,7 @@ class SongSelectActivity : AppCompatActivity() {
 
         //accessing preference files
         completed = getSongCompleted.getInt(title,0)
-        println(">>> XML parser create song completed: " + completed + " Title: " + title)
+        println(">>> XML parser create song completed: $completed Title: $title")
         return Song(number,artist,title,link,completed)
     }
 
