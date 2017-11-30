@@ -1,6 +1,5 @@
 package com.example.s1541472.test
 
-
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
@@ -14,7 +13,6 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.AlertDialog
 import android.util.Xml
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
 import com.google.android.gms.common.ConnectionResult
@@ -27,7 +25,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.maps.android.data.kml.KmlLayer
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.guess_song_layout.view.*
 import kotlinx.android.synthetic.main.toolbar_map.*
@@ -43,7 +40,6 @@ import java.io.*
 class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         ,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener,LocationListener {
 
-//    private var layer: KmlLayer? = null
     private lateinit var mMap: GoogleMap
     private lateinit var mGoogleApiClient: GoogleApiClient
     val PERMSISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
@@ -51,25 +47,25 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private var mLastLocation : Location? = null
     val TAG = "MapsActivity"
     private lateinit var songName: String
+    //TODO: Fix hard coded link, inent message needed
     private val link: String = "https://youtu.be/fJ9rUzIMcZQ"
     private lateinit var getSongCompleted: SharedPreferences
     private lateinit var markerFile:File
     private lateinit var lyricFile:File
     private var diff:Int = 0
     private var markersOnMap: ArrayList<MapMarker> = ArrayList()
-    var count = 0
-    private var maxDist:Float = 15F
+    //does not need to be gobal in class
+    private var maxDist:Float = 20F
     private var collectedwords:ArrayList<String> = ArrayList()
+    private var lyrics:ArrayList<List<String>> = ArrayList()
+    private var proceed = true
+    //TODO: get proper icons for markers
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.toolbar_map)
         setSupportActionBar(toolbar)
         toolbar.setNavigationIcon(R.drawable.menu)
-
-//        val mDrawerToggle = ActionBarDrawerToggle(this, drawer_layout, 0, 0)
-
-
 
         //on button presses including those in the nav drawer
         toolbar.setNavigationOnClickListener { navBarOpen() }
@@ -109,17 +105,19 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                 .addApi(LocationServices.API)
                 .build()
 
-
-        var lyrics:ArrayList<List<String>> = ArrayList()
-
         val lyricInput: FileReader = FileReader(lyricFile)
         var lyricsReader: BufferedReader = BufferedReader(lyricInput)
         var line = lyricsReader.readLine()
 
+        //parsing the lyrics file so it can be indexed
         while( line != null){
-            
+
+            lyrics.add(line.split("\\s+".toRegex()))
+
+            line = lyricsReader.readLine()
         }
 
+        println(">>>>++++++<<<<")
     }
 
     override fun onStart() {
@@ -199,36 +197,43 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
             }
 
-            if(markersOnMap.size > count) {
+            /*if(markersOnMap.size > count) {
                 println(">>>> I AM BLOODY HERE YOU TWAT")
                 markersOnMap[count].marker.isVisible = false
-            }
+            }else{
+                markersOnMap[count].marker.isVisible = true
+            }*/
 
 
             var locPoint = Location("marker")
-            var dist:Float = 0F
+            var dist:Float
 
-            markersOnMap.forEach { mark ->
+            if(proceed == true) {
+                var count = 0
+                for (mark in markersOnMap) {
 
+                    locPoint.latitude = mark.marker.position.latitude
+                    locPoint.longitude = mark.marker.position.longitude
 
+                    dist = current.distanceTo(locPoint)
 
-                locPoint.latitude = mark.marker.position.latitude
-                locPoint.longitude = mark.marker.position.longitude
+                    //need to download the entire lyric file and parse into a array
 
-                dist = current.distanceTo(locPoint)
+                    if (dist < maxDist) {
+                        collectedwords.add(mark.word)
+                        collect(mark.word)
+                        println(">>>> Here After button press")
+                        mark.marker.remove()
+                        markersOnMap.removeAt(count)
+                        break
+                    }
 
-                //need to download the entire lyric file and parse into a array
-
-                if(dist < maxDist){
-                    collect()
+                    count++
                 }
-
             }
 
 
-
             println(">>>Location changed")
-            count++
         }
     }
 
@@ -271,7 +276,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
         mMap.uiSettings.isMyLocationButtonEnabled = true
 
-
         mMap.setOnMyLocationButtonClickListener {
             //my god this code is terrible can be fixed by calling google api and not assigning mLastLocation in on location change
 
@@ -290,10 +294,8 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
         println(markerFile.toString())
         println(">>> KML files being placed on map")
-        var kmlInputstream  = FileInputStream(markerFile)
-//        var layer = KmlLayer(mMap, kmlInputstream, applicationContext)
 
-        //getting list of markers
+        var kmlInputstream  = FileInputStream(markerFile)
         markersOnMap = parseXml(kmlInputstream)
 
     }
@@ -435,18 +437,23 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             private fun collect(word:String){
                 val wordBuilder = AlertDialog.Builder(this)
 
+                proceed = false
                 //building completed song List
                 val inflater = layoutInflater
                 val wordCollectView= inflater.inflate(R.layout.word_collected,null)
 
                 wordCollectView.wordCollect.text = word
 
+
                 wordBuilder
                         .setTitle("Word Collected:")
-                        .setView(R.layout.word_collected)
+                        .setView(wordCollectView)
                         .setPositiveButton("Ok",{_,_ ->
-
+                            proceed = true
                         }).create().show()
+
+
+                println(">>>> Users has pressed ok after seeing word")
 
             }
 
@@ -523,10 +530,17 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
                 val icon = BitmapDescriptorFactory.fromResource(R.drawable.abc_ic_star_black_16dp)
 
+
+                //get word, with -1 to offset for array indexing
+                val wordNum = word.substringAfter(':').toInt() -1
+                val lineNum = word.substringBefore(':').toInt() - 1
+
+                val wordFromFile = lyrics[lineNum][wordNum]
+
                 return MapMarker(mMap.addMarker(MarkerOptions()
                         .position( LatLng(points[0],points[1]))
                         .title(desc)
-                        .icon(icon)),"hello")
+                        .icon(icon)),wordFromFile)
             }
 
             @Throws(XmlPullParserException::class, IOException::class)

@@ -47,7 +47,7 @@ class LoadingScreen : AppCompatActivity() {
         println("${url}/${songNumStr}/map${diffmap}.kml")
         println("${url}/${songNumStr}/words.txt")
 
-        downloadMap("${url}/${songNumStr}/map${diffmap}.kml","${url}/${songNumStr}/words.txt")
+        downloadMap("${url}/${songNumStr}/map${diffmap}.kml","${url}/${songNumStr}/lyrics.txt")
 
         println("Create finished")
 
