@@ -14,6 +14,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.AlertDialog
 import android.util.Xml
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
 import com.google.android.gms.common.ConnectionResult
@@ -30,11 +31,10 @@ import com.google.maps.android.data.kml.KmlLayer
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.guess_song_layout.view.*
 import kotlinx.android.synthetic.main.toolbar_map.*
+import kotlinx.android.synthetic.main.word_collected.view.*
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
+import java.io.*
 
 /**
  * @author Andrew Lindsay
@@ -56,6 +56,10 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private lateinit var markerFile:File
     private lateinit var lyricFile:File
     private var diff:Int = 0
+    private var markersOnMap: ArrayList<MapMarker> = ArrayList()
+    var count = 0
+    private var maxDist:Float = 15F
+    private var collectedwords:ArrayList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,9 +69,12 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
 //        val mDrawerToggle = ActionBarDrawerToggle(this, drawer_layout, 0, 0)
 
-        toolbar.setNavigationOnClickListener { navBarOpen() }
 
+
+        //on button presses including those in the nav drawer
+        toolbar.setNavigationOnClickListener { navBarOpen() }
         navCollect.setOnClickListener { wordCollect() }
+        guess.setOnClickListener { guessButtonPress() }
 
         val intent = intent
 
@@ -86,7 +93,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         //get song completion preference file to add to later if song completed
         val PREF_FILE = "CompletedSongs${diff}"
 
-        println("Difficulty: " + diff)
+        println(">>>> Difficulty: " + diff)
 
         getSongCompleted = getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
@@ -102,7 +109,16 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                 .addApi(LocationServices.API)
                 .build()
 
-        guess.setOnClickListener { guessButtonPress() }
+
+        var lyrics:ArrayList<List<String>> = ArrayList()
+
+        val lyricInput: FileReader = FileReader(lyricFile)
+        var lyricsReader: BufferedReader = BufferedReader(lyricInput)
+        var line = lyricsReader.readLine()
+
+        while( line != null){
+            
+        }
 
     }
 
@@ -183,15 +199,36 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
             }
 
-            /*if(layer != null){
-                println(">>> at layer info")
-                val placemarks = layer!!.placemarks
-//                placemarks.forEachIndexed { index, kmlPlacemark ->
-//                    kmlPlacemark.markerOptions.visible(false)
-//                }
-            }*/
+            if(markersOnMap.size > count) {
+                println(">>>> I AM BLOODY HERE YOU TWAT")
+                markersOnMap[count].marker.isVisible = false
+            }
+
+
+            var locPoint = Location("marker")
+            var dist:Float = 0F
+
+            markersOnMap.forEach { mark ->
+
+
+
+                locPoint.latitude = mark.marker.position.latitude
+                locPoint.longitude = mark.marker.position.longitude
+
+                dist = current.distanceTo(locPoint)
+
+                //need to download the entire lyric file and parse into a array
+
+                if(dist < maxDist){
+                    collect()
+                }
+
+            }
+
+
 
             println(">>>Location changed")
+            count++
         }
     }
 
@@ -256,9 +293,8 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         var kmlInputstream  = FileInputStream(markerFile)
 //        var layer = KmlLayer(mMap, kmlInputstream, applicationContext)
 
-
-        var markersOnMap = parseXml(kmlInputstream)
-
+        //getting list of markers
+        markersOnMap = parseXml(kmlInputstream)
 
     }
             override fun onBackPressed() {
@@ -396,8 +432,15 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                         }).setMessage("the, Forrest, will, rise, appropriation").create().show()
             }
 
-            private fun collect(){
+            private fun collect(word:String){
                 val wordBuilder = AlertDialog.Builder(this)
+
+                //building completed song List
+                val inflater = layoutInflater
+                val wordCollectView= inflater.inflate(R.layout.word_collected,null)
+
+                wordCollectView.wordCollect.text = word
+
                 wordBuilder
                         .setTitle("Word Collected:")
                         .setView(R.layout.word_collected)
@@ -419,7 +462,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
 
             @Throws(XmlPullParserException::class, IOException::class)
-            fun parseXml(strm:FileInputStream):ArrayList<Marker>{
+            fun parseXml(strm:FileInputStream):ArrayList<MapMarker>{
 
                 //use kotlin block to save on strm.close()
                 strm.use {
@@ -434,8 +477,8 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
 
             @Throws(XmlPullParserException::class, IOException::class)
-            private fun readMarkers(parser: XmlPullParser):ArrayList<Marker>{
-                val songsParsed = ArrayList<Marker>()
+            private fun readMarkers(parser: XmlPullParser):ArrayList<MapMarker>{
+                val songsParsed = ArrayList<MapMarker>()
 
                 parser.require(XmlPullParser.START_TAG,null,"Document")
                 while(parser.next() != XmlPullParser.END_TAG){
@@ -455,7 +498,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             }
 
             @Throws(XmlPullParserException::class, IOException::class)
-            private fun readMarker(parser: XmlPullParser):Marker{
+            private fun readMarker(parser: XmlPullParser):MapMarker{
                 parser.require(XmlPullParser.START_TAG,null,"Placemark")
                 var word = ""
                 var desc = ""
@@ -469,12 +512,10 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                     when(parser.name){
                         "name" -> word = readName(parser)
                         "description" -> desc = readDesc(parser)
-                        "Title" -> title = readTitle(parser)
                         "Point" -> points = readPos(parser)
                         else -> skip(parser)
                     }
                 }
-
 
                 //add markers parsed to map
 
@@ -482,20 +523,30 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
                 val icon = BitmapDescriptorFactory.fromResource(R.drawable.abc_ic_star_black_16dp)
 
-                return mMap.addMarker(MarkerOptions()
+                return MapMarker(mMap.addMarker(MarkerOptions()
                         .position( LatLng(points[0],points[1]))
                         .title(desc)
-                        .icon(icon))
+                        .icon(icon)),"hello")
             }
-
 
             @Throws(XmlPullParserException::class, IOException::class)
             private fun readPos(parser: XmlPullParser): Array<Double>{
+
                 var pos:Array<Double> = arrayOf(1.0,1.0)
 
+                var posStr =""
+
                 parser.require(XmlPullParser.START_TAG,null,"Point")
-                var posStr = readCoord(parser)
-                parser.require(XmlPullParser.END_TAG,null,"Point")
+
+                while(parser.next() != XmlPullParser.END_TAG){
+                    if(parser.eventType != XmlPullParser.START_TAG){
+                        continue
+                    }
+                    when(parser.name){
+                        "coordinates" -> posStr = readCoord(parser)
+                        else -> skip(parser)
+                    }
+                }
 
                 posStr = posStr.subSequence(0,posStr.length-2).toString()
 
@@ -507,6 +558,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
             @Throws(XmlPullParserException::class, IOException::class)
             private fun readCoord(parser: XmlPullParser): String {
+
                 parser.require(XmlPullParser.START_TAG,null,"coordinates")
                 val posStr = readText(parser)
                 parser.require(XmlPullParser.END_TAG,null,"coordinates")

@@ -176,7 +176,7 @@ class SongSelectActivity : AppCompatActivity() {
 
         //building completed song List
         val inflater = layoutInflater
-        val ve = inflater.inflate(R.layout.word_collected,null)
+        val ve = inflater.inflate(R.layout.comlete_song_title,null)
 
         diabuild.setView(compList)
                 .setCustomTitle(ve)
