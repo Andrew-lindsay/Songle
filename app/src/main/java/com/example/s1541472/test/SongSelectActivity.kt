@@ -25,6 +25,7 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.util.Collections.shuffle
 import kotlin.collections.ArrayList
+
 /**
  * @author Andrew Lindsay
  * @version 0.000001 pre-alpha
@@ -61,7 +62,8 @@ class SongSelectActivity : AppCompatActivity() {
         //change Title displayed in action bar
         title = when(diff){
             0 -> "Easy"
-            1 -> "Medium" 2 -> "Hard"
+            1 -> "Medium"
+            2 -> "Hard"
             3 -> "Extra Hard"
             4 -> "Extreme"
             else -> "ERROR" }
@@ -190,7 +192,7 @@ class SongSelectActivity : AppCompatActivity() {
     }
 
     private fun refreshSongList(){
-        println(">>> difficulty SSA: $diff")
+        println(">>> diff: $diff")
         songs.map{ println("Title: " + it.title +" complete: " + it.complete) }
         println("++++++")
         songs.map{ it.complete = getSongCompleted.getInt(it.title,0)}

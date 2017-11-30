@@ -1,5 +1,6 @@
 package com.example.s1541472.test
 
+
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
@@ -11,6 +12,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.AlertDialog
+import android.util.Xml
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -23,27 +25,25 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.*
 import com.google.maps.android.data.kml.KmlLayer
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.guess_song_layout.view.*
 import kotlinx.android.synthetic.main.toolbar_map.*
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
 
 /**
  * @author Andrew Lindsay
  * @version 0.000001 pre-alpha
  */
-class MapsActivity : AppCompatActivity()
-        ,OnMapReadyCallback
-        ,GoogleApiClient.ConnectionCallbacks
-        ,GoogleApiClient.OnConnectionFailedListener
-        ,LocationListener
-        {
+class MapsActivity : AppCompatActivity(),OnMapReadyCallback
+        ,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener,LocationListener {
 
-
+//    private var layer: KmlLayer? = null
     private lateinit var mMap: GoogleMap
     private lateinit var mGoogleApiClient: GoogleApiClient
     val PERMSISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
@@ -56,7 +56,6 @@ class MapsActivity : AppCompatActivity()
     private lateinit var markerFile:File
     private lateinit var lyricFile:File
     private var diff:Int = 0
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,8 +70,6 @@ class MapsActivity : AppCompatActivity()
         navCollect.setOnClickListener { wordCollect() }
 
         val intent = intent
-
-
 
         //get intent information
         diff = intent.getIntExtra("songle.difficultyTransfer",0)
@@ -180,12 +177,19 @@ class MapsActivity : AppCompatActivity()
 //                    .radius(12.0)
 //                    .strokeColor(Color.RED))
 
-
             val currentloc = LatLng(current.latitude,current.longitude)
 
             if(locFollow.isChecked) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
             }
+
+            /*if(layer != null){
+                println(">>> at layer info")
+                val placemarks = layer!!.placemarks
+//                placemarks.forEachIndexed { index, kmlPlacemark ->
+//                    kmlPlacemark.markerOptions.visible(false)
+//                }
+            }*/
 
             println(">>>Location changed")
         }
@@ -194,7 +198,6 @@ class MapsActivity : AppCompatActivity()
     override fun onConnectionSuspended(flag: Int) {
         println(">>> connection Suspended")
     }
-
 
     override fun onConnectionFailed(p0: ConnectionResult) {
         println(">>> onConnection failed")
@@ -247,14 +250,17 @@ class MapsActivity : AppCompatActivity()
         }
 
         //set KML file now
+
         println(markerFile.toString())
         println(">>> KML files being placed on map")
         var kmlInputstream  = FileInputStream(markerFile)
-        var layer = KmlLayer(mMap, kmlInputstream, applicationContext)
-        layer.addLayerToMap()
+//        var layer = KmlLayer(mMap, kmlInputstream, applicationContext)
+
+
+        var markersOnMap = parseXml(kmlInputstream)
+
 
     }
-
             override fun onBackPressed() {
                 val exitBuilder = AlertDialog.Builder(this)
 //                var txtView = EditText(this)
@@ -364,7 +370,6 @@ class MapsActivity : AppCompatActivity()
                 } catch (ex: ActivityNotFoundException) {
                     startActivity(browserIntent)
                 }
-
             }
 
             private fun switchtoSongSelect(){
@@ -408,6 +413,156 @@ class MapsActivity : AppCompatActivity()
                 setSongComplete.putInt(songName,1)
                 setSongComplete.apply()
             }
+
+            //--------------------------------------------------------------------------------------
+            //---------------------------XML parser starts here-------------------------------------
+
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            fun parseXml(strm:FileInputStream):ArrayList<Marker>{
+
+                //use kotlin block to save on strm.close()
+                strm.use {
+                    val parser = Xml.newPullParser()
+                    parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES,false)
+                    parser.setInput(strm,null)
+                    parser.nextTag()
+                    parser.nextTag()
+                    return readMarkers(parser)
+                }
+            }
+
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun readMarkers(parser: XmlPullParser):ArrayList<Marker>{
+                val songsParsed = ArrayList<Marker>()
+
+                parser.require(XmlPullParser.START_TAG,null,"Document")
+                while(parser.next() != XmlPullParser.END_TAG){
+                    if(parser.eventType != XmlPullParser.START_TAG ){
+                        //continues to next iteration of the loop
+                        continue
+                    }
+
+                    if(parser.name == "Placemark"){
+                        songsParsed.add(readMarker(parser))
+                    }else {
+                        skip(parser)
+                    }
+                }
+
+                return songsParsed
+            }
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun readMarker(parser: XmlPullParser):Marker{
+                parser.require(XmlPullParser.START_TAG,null,"Placemark")
+                var word = ""
+                var desc = ""
+
+                var points:Array<Double> = arrayOf(0.0,0.0)
+
+                while(parser.next() != XmlPullParser.END_TAG){
+                    if(parser.eventType != XmlPullParser.START_TAG){
+                        continue
+                    }
+                    when(parser.name){
+                        "name" -> word = readName(parser)
+                        "description" -> desc = readDesc(parser)
+                        "Title" -> title = readTitle(parser)
+                        "Point" -> points = readPos(parser)
+                        else -> skip(parser)
+                    }
+                }
+
+
+                //add markers parsed to map
+
+                //if descriptor is a certain type set icon
+
+                val icon = BitmapDescriptorFactory.fromResource(R.drawable.abc_ic_star_black_16dp)
+
+                return mMap.addMarker(MarkerOptions()
+                        .position( LatLng(points[0],points[1]))
+                        .title(desc)
+                        .icon(icon))
+            }
+
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun readPos(parser: XmlPullParser): Array<Double>{
+                var pos:Array<Double> = arrayOf(1.0,1.0)
+
+                parser.require(XmlPullParser.START_TAG,null,"Point")
+                var posStr = readCoord(parser)
+                parser.require(XmlPullParser.END_TAG,null,"Point")
+
+                posStr = posStr.subSequence(0,posStr.length-2).toString()
+
+                pos[0] = posStr.substringAfter(',').toDouble()
+                pos[1] = posStr.substringBefore(',').toDouble()
+
+                return pos
+            }
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun readCoord(parser: XmlPullParser): String {
+                parser.require(XmlPullParser.START_TAG,null,"coordinates")
+                val posStr = readText(parser)
+                parser.require(XmlPullParser.END_TAG,null,"coordinates")
+                return posStr
+            }
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun readTitle(parser: XmlPullParser): String {
+                parser.require(XmlPullParser.START_TAG,null,"Title")
+                val title = readText(parser)
+                parser.require(XmlPullParser.END_TAG,null,"Title")
+                return title
+            }
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun readDesc(parser: XmlPullParser): String {
+                parser.require(XmlPullParser.START_TAG,null,"description")
+                val artist = readText(parser)
+                parser.require(XmlPullParser.END_TAG,null,"description")
+                return artist
+            }
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun readName(parser: XmlPullParser): String {
+                parser.require(XmlPullParser.START_TAG,null,"name")
+                val name = readText(parser)
+                parser.require(XmlPullParser.END_TAG,null,"name")
+                return name
+            }
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun skip(parser: XmlPullParser) {
+                if(parser.eventType != XmlPullParser.START_TAG){
+                    throw IllegalStateException()
+                }
+                var depth = 1
+                while(depth != 0){
+                    when(parser.next()){
+                        XmlPullParser.END_TAG -> depth--
+                        XmlPullParser.START_TAG -> depth++
+                    }
+                }
+
+            }
+
+            @Throws(XmlPullParserException::class, IOException::class)
+            private fun readText(parser: XmlPullParser): String {
+                var result = ""
+                if(parser.next() == XmlPullParser.TEXT){
+                    result = parser.text
+                    parser.nextTag()
+                }
+                return result
+            }
+
+
         }
 
 
