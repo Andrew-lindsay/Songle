@@ -45,6 +45,7 @@ class SongSelectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_select)
 
+
         val intent = intent
 
         diff = intent.getIntExtra("songle.difficultySet",0)
@@ -74,7 +75,7 @@ class SongSelectActivity : AppCompatActivity() {
         Random.setOnClickListener {
             if(songs.size != 0) {
                 val index = ((Math.random() * 100).toInt() % songs.size)
-                switchtoLoading(songs[index].title,songs[index].number)
+                switchtoLoading(songs[index].title,songs[index].number,songs[index].link)
             }
         }
 
@@ -116,7 +117,7 @@ class SongSelectActivity : AppCompatActivity() {
                     })
                     infoBuilder.setNegativeButton("Play again", DialogInterface.OnClickListener { dialog, id ->
                         // User clicked play again button
-                        switchtoLoading(entrySong.title,entrySong.number)
+                        switchtoLoading(entrySong.title,entrySong.number,entrySong.link)
 
                     })
                     infoBuilder.setNeutralButton("Listen",DialogInterface.OnClickListener { dialog, id ->
@@ -124,7 +125,7 @@ class SongSelectActivity : AppCompatActivity() {
                     })
                     infoBuilder.create().show()
 
-                }else switchtoLoading(entrySong.title,entrySong.number)
+                }else switchtoLoading(entrySong.title,entrySong.number,entrySong.link)
 
             }
         }
@@ -204,11 +205,13 @@ class SongSelectActivity : AppCompatActivity() {
     }
 
     //change activity
-    private fun switchtoLoading(songTitle:String,songNumber:Int){
+    private fun switchtoLoading(songTitle:String,songNumber:Int,songLink:String){
         val intent = Intent(this,LoadingScreen::class.java)
         intent.putExtra(diffSend,diff)
         intent.putExtra("songle.songName",songTitle)
         intent.putExtra("songle.songNumber",songNumber)
+        intent.putExtra("songle.songLink",songLink)
+
         startActivity(intent)
     }
 

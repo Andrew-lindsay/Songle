@@ -3,7 +3,6 @@ package com.example.s1541472.test
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
@@ -50,8 +49,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private var mLastLocation : Location? = null
     val TAG = "MapsActivity"
     private lateinit var songName: String
-    //TODO: Fix hard coded link, inent message needed
-    private val link: String = "https://youtu.be/fJ9rUzIMcZQ"
+    private lateinit var songLink: String
     private lateinit var getSongCompleted: SharedPreferences
     private lateinit var markerFile:File
     private lateinit var lyricFile:File
@@ -62,10 +60,15 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private var collectedwords:ArrayList<String> = ArrayList()
     private var lyrics:ArrayList<List<String>> = ArrayList()
     private var proceed = true
-    //TODO: get proper icons for markers
+    private var gameStart:Long = 0L
     //TODO: get words collect in collectedWords array to display nicely /!
-    //TODO: timed challenge to award stars appropriately
     //TODO: similarty checking upper and lower case -!
+    //TODO: Fix hard coded link, inent message needed -!
+    //TODO: timed challenge to award stars appropriately
+    //TODO: can add count down timer on screen ?
+    //TODO: help explain what each marker color is related to
+    //TODO: on try of song stop from changing score
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +86,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         //get intent information
         diff = intent.getIntExtra("songle.difficultyTransfer",0)
         songName = intent.getStringExtra("songle.songName")
+        songLink = intent.getStringExtra("songle.songLink")
         val mapFilePath = intent.getStringExtra("songle.mapFilePath")
         val lyricFilePath = intent.getStringExtra("songle.lyricsFilePath")
 
@@ -124,6 +128,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         }
 
         println(">>>>++++++<<<<")
+
     }
 
     override fun onStart() {
@@ -209,7 +214,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             }else{
                 markersOnMap[count].marker.isVisible = true
             }*/
-
 
             var locPoint = Location("marker")
             var dist:Float
@@ -297,368 +301,411 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             true
         }
 
-        //set KML file now
-
         println(markerFile.toString())
         println(">>> KML files being placed on map")
 
+        //KML file being parsed
         var kmlInputstream  = FileInputStream(markerFile)
         markersOnMap = parseXml(kmlInputstream)
 
+        //start timer for game (star system)
+        gameStart = System.currentTimeMillis()
+
     }
-            override fun onBackPressed() {
-                val exitBuilder = AlertDialog.Builder(this)
-//                var txtView = EditText(this)
 
-                exitBuilder
-                        .setTitle("Warning")
-                        .setMessage("Are you sure you want to exit all progress will be lost")
-                        .setPositiveButton("Yes", DialogInterface.OnClickListener{ _, _ ->
-                            super.onBackPressed()
-                        })
-                        .setNegativeButton("No",{_,_ -> })
-                        .create()
-                        .show()
-            }
+    override fun onBackPressed() {
+        val exitBuilder = AlertDialog.Builder(this)
 
-            private fun guessButtonPress() {
+        //              var txtView = EditText(this)
 
-                val exitBuilder = AlertDialog.Builder(this)
-
-                //maybe put in different xml file then grab id
-                var txtView = EditText(this)
-
-                var layout = LinearLayout(this)
-                layout.orientation = LinearLayout.VERTICAL
-                var params = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                            params.setMargins(70, 0, 70, 0)
-
-                layout.addView(txtView,params)
-
-                exitBuilder
-                        .setTitle("Enter Your Guess:")
-                        .setView(layout)
-                        .setPositiveButton("Enter",null)
-                        .setNegativeButton("Exit",{_,_ ->
-
-                        })
-
-                var dialog2 = exitBuilder.setMessage("Sorry that is not correct").create()
-
-                dialog2.setOnShowListener { dialog2.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                        val inputTxt = txtView.text.toString()
-                        if(inputTxt.toLowerCase() == songName.toLowerCase()){
-                            println("well done")
-                            onCorrectGuess()
-                            dialog2.dismiss()
-                        }else{
-                            txtView.setText("")
-                            dialog2.create()
-                        }
-                    }
-                }
-
-                var dialog = exitBuilder.setMessage("").setPositiveButton("Enter",{ _,_  ->
-                    val inputTxt = txtView.text.toString()
-
-                    if(inputTxt.toLowerCase() == songName.toLowerCase()){
-                        println("well done")
-                        onCorrectGuess()
-                    }else{
-                        txtView.clearAnimation()
-                        //not a great fix can be done better
-                        (layout.parent as ViewGroup).removeView(layout)
-                        dialog2.show()
-                    }
-                }).create()
-
-                dialog.show()
-
-            }
-
-            private fun onCorrectGuess() {
-                // can add include for layout guess_song_layout
-                var congratBuilder = AlertDialog.Builder(this)
-
-                val inflater = layoutInflater
-
-                val a = inflater.inflate(R.layout.guess_song_layout,null)
-
-                a.txtsong.text = songName
-
-                congratBuilder
-                        .setView(a)
-                        .setNegativeButton("return" ,{ _ , _ ->
-
-                            onSongCompleted()
-                            super.onBackPressed()
-
-                }).setOnDismissListener {
-                    onSongCompleted()
+        exitBuilder
+                .setTitle("Warning")
+                .setMessage("Are you sure you want to exit all progress will be lost")
+                .setPositiveButton("Yes", DialogInterface.OnClickListener{ _, _ ->
                     super.onBackPressed()
-                }
+                })
+                .setNegativeButton("No",{_,_ -> })
+                .create()
+                .show()
+    }
 
-                val congratDialog = congratBuilder.create()
+    //green
+    private fun guessButtonPress() {
 
-                congratDialog.show()
+        val exitBuilder = AlertDialog.Builder(this)
+
+        //maybe put in different xml file then grab id
+        var txtView = EditText(this)
+
+        //sets padding for editText array so it looks better
+        var layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        var params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    params.setMargins(70, 0, 70, 0)
+
+        layout.addView(txtView,params)
+
+        exitBuilder
+                .setTitle("Enter Your Guess:")
+                .setView(layout)
+                .setPositiveButton("Enter",null)
+                .setNegativeButton("Exit",{_,_ ->
+
+                })
+
+        var dialog2 = exitBuilder.setMessage("Sorry that is not correct").create()
+
+        dialog2.setOnShowListener { dialog2.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val inputTxt = txtView.text.toString()
+
+
+            if(inputTxt.toLowerCase() == songName.toLowerCase()){
+
+                //time in minutes to complete song
+                val timeToComp =  (System.currentTimeMillis() - gameStart).toDouble()/60000
+                println(">>>>> Time in minutes taken to complete song: " + timeToComp )
+
+                //need the number of stars awarded
+                val numOfStars:Int =
+                        when {
+                            timeToComp < 10 -> 5
+                            timeToComp < 20 -> 4
+                            timeToComp < 30 -> 3
+                            timeToComp < 40 -> 2
+                            else -> 1
+                        }
+
+                println("well done")
+                onCorrectGuess(numOfStars)
+                dialog2.dismiss()
+            }else{
+                txtView.setText("")
+                dialog2.create()
             }
-
-            private fun watchVideoLink(id: String) {
-
-                val id_fix = id.substring(17,id.length)
-
-                val applicationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id_fix))
-                val browserIntent = Intent(Intent.ACTION_VIEW,
-                        Uri.parse("http://www.youtube.com/watch?v=" + id_fix))
-                try {
-                    startActivity(applicationIntent)
-                } catch (ex: ActivityNotFoundException) {
-                    startActivity(browserIntent)
-                }
-            }
-
-            private fun switchtoSongSelect(){
-                val intent1 = Intent(this,SongSelectActivity::class.java)
-                startActivity(intent1)
-            }
-
-            private fun navBarOpen(){
-
-                if(drawer_layout.isDrawerOpen(GravityCompat.START)){
-                    drawer_layout.closeDrawer(GravityCompat.START)
-                }else{
-                    drawer_layout.openDrawer(GravityCompat.START)
-                }
-            }
-
-            private fun wordCollect(){
-                val exitBuilder  = AlertDialog.Builder(this)
-
-                var wordscold = collectedwords.toString()
-
-                exitBuilder
-                        .setTitle("Words Colected:")
-                        .setPositiveButton("Ok",{_,_ ->
-
-                        }).setMessage( wordscold.substring(1,wordscold.length-1) ).create().show()
-            }
-
-            private fun collect(word:String){
-                val wordBuilder = AlertDialog.Builder(this)
-
-                proceed = false
-                //building completed song List
-                val inflater = layoutInflater
-                val wordCollectView= inflater.inflate(R.layout.word_collected,null)
-
-                wordCollectView.wordCollect.text = word
-
-                wordBuilder
-                        .setTitle("Word Collected:")
-                        .setView(wordCollectView)
-                        .setPositiveButton("Ok",{_,_ ->
-                            proceed = true
-                        }).setOnDismissListener({
-                        proceed = true
-                }).create().show()
-
-                println(">>>> Users has pressed ok after seeing word")
-
-            }
-
-            private fun onSongCompleted(){
-                println(">>> $diff")
-                var setSongComplete = getSongCompleted.edit()
-                setSongComplete.putInt(songName,1)
-                setSongComplete.apply()
-            }
-
-            //--------------------------------------------------------------------------------------
-            //---------------------------XML parser starts here-------------------------------------
-
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            fun parseXml(strm:FileInputStream):ArrayList<MapMarker>{
-
-                //use kotlin block to save on strm.close()
-                strm.use {
-                    val parser = Xml.newPullParser()
-                    parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES,false)
-                    parser.setInput(strm,null)
-                    parser.nextTag()
-                    parser.nextTag()
-                    return readMarkers(parser)
-                }
-            }
-
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun readMarkers(parser: XmlPullParser):ArrayList<MapMarker>{
-                val songsParsed = ArrayList<MapMarker>()
-
-                parser.require(XmlPullParser.START_TAG,null,"Document")
-                while(parser.next() != XmlPullParser.END_TAG){
-                    if(parser.eventType != XmlPullParser.START_TAG ){
-                        //continues to next iteration of the loop
-                        continue
-                    }
-
-                    if(parser.name == "Placemark"){
-                        songsParsed.add(readMarker(parser))
-                    }else {
-                        skip(parser)
-                    }
-                }
-
-                return songsParsed
-            }
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun readMarker(parser: XmlPullParser):MapMarker{
-                parser.require(XmlPullParser.START_TAG,null,"Placemark")
-                var word = ""
-                var desc = ""
-
-                var points:Array<Double> = arrayOf(0.0,0.0)
-
-                while(parser.next() != XmlPullParser.END_TAG){
-                    if(parser.eventType != XmlPullParser.START_TAG){
-                        continue
-                    }
-                    when(parser.name){
-                        "name" -> word = readName(parser)
-                        "description" -> desc = readDesc(parser)
-                        "Point" -> points = readPos(parser)
-                        else -> skip(parser)
-                    }
-                }
-
-                //add markers parsed to map
-
-                //if descriptor is a certain type set icon
-
-                val icon = when(desc) {
-                    "unclassified" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.wht_blank))
-                    "boring" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.ylw_blank))
-                    "notboring" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.ylw_circle))
-                    "interesting" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.orange_diamond))
-                    "veryinteresting" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.red_stars))
-                    else -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.design_password_eye))
-                }
-
-                //get word, with -1 to offset for array indexing
-                val wordNum = word.substringAfter(':').toInt() -1
-                val lineNum = word.substringBefore(':').toInt() - 1
-
-                //gets word that marker is associated with from list of list created from lyrics.txt
-                val wordFromFile = lyrics[lineNum][wordNum]
-
-                return MapMarker(mMap.addMarker(MarkerOptions()
-                        .position( LatLng(points[0],points[1]))
-                        .title(desc)
-                        .icon(icon)),wordFromFile)
-            }
-
-            fun bitmapScale(resrc:Int):Bitmap {
-
-                val bitmapIn = BitmapFactory.decodeResource(resources,resrc)
-
-                val scall_zero_to_one_f :Float = 0.5F
-
-                val bitmapOut :Bitmap = Bitmap.createScaledBitmap(bitmapIn,
-                    Math.round(bitmapIn.width * scall_zero_to_one_f),
-                    Math.round(bitmapIn.height * scall_zero_to_one_f), false)
-
-                return bitmapOut
-            }
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun readPos(parser: XmlPullParser): Array<Double>{
-
-                var pos:Array<Double> = arrayOf(1.0,1.0)
-
-                var posStr = ""
-
-                parser.require(XmlPullParser.START_TAG,null,"Point")
-
-                while(parser.next() != XmlPullParser.END_TAG){
-                    if(parser.eventType != XmlPullParser.START_TAG){
-                        continue
-                    }
-                    when(parser.name){
-                        "coordinates" -> posStr = readCoord(parser)
-                        else -> skip(parser)
-                    }
-                }
-
-                posStr = posStr.subSequence(0,posStr.length-2).toString()
-
-                pos[0] = posStr.substringAfter(',').toDouble()
-                pos[1] = posStr.substringBefore(',').toDouble()
-
-                return pos
-            }
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun readCoord(parser: XmlPullParser): String {
-
-                parser.require(XmlPullParser.START_TAG,null,"coordinates")
-                val posStr = readText(parser)
-                parser.require(XmlPullParser.END_TAG,null,"coordinates")
-                return posStr
-            }
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun readTitle(parser: XmlPullParser): String {
-                parser.require(XmlPullParser.START_TAG,null,"Title")
-                val title = readText(parser)
-                parser.require(XmlPullParser.END_TAG,null,"Title")
-                return title
-            }
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun readDesc(parser: XmlPullParser): String {
-                parser.require(XmlPullParser.START_TAG,null,"description")
-                val artist = readText(parser)
-                parser.require(XmlPullParser.END_TAG,null,"description")
-                return artist
-            }
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun readName(parser: XmlPullParser): String {
-                parser.require(XmlPullParser.START_TAG,null,"name")
-                val name = readText(parser)
-                parser.require(XmlPullParser.END_TAG,null,"name")
-                return name
-            }
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun skip(parser: XmlPullParser) {
-                if(parser.eventType != XmlPullParser.START_TAG){
-                    throw IllegalStateException()
-                }
-                var depth = 1
-                while(depth != 0){
-                    when(parser.next()){
-                        XmlPullParser.END_TAG -> depth--
-                        XmlPullParser.START_TAG -> depth++
-                    }
-                }
-
-            }
-
-            @Throws(XmlPullParserException::class, IOException::class)
-            private fun readText(parser: XmlPullParser): String {
-                var result = ""
-                if(parser.next() == XmlPullParser.TEXT){
-                    result = parser.text
-                    parser.nextTag()
-                }
-                return result
-            }
-
+        }
 
         }
+
+            var dialog = exitBuilder.setMessage("").setPositiveButton("Enter",{ _,_  ->
+
+                val inputTxt = txtView.text.toString()
+
+                //add star calculation here
+                if(inputTxt.toLowerCase() == songName.toLowerCase()){
+
+                    //replicated code :(
+                    val timeToComp =  (System.currentTimeMillis() - gameStart).toDouble()/60000
+                    println(">>>>> Time in minutes taken to complete song: " + timeToComp )
+
+                    //need the number of stars awarded
+                    val numOfStars:Int =
+                            when {
+                                timeToComp < 10 -> 5
+                                timeToComp < 20 -> 4
+                                timeToComp < 30 -> 3
+                                timeToComp < 40 -> 2
+                                else -> 1
+                            }
+
+                    println("well done")
+                    onCorrectGuess(numOfStars)
+                }else{
+                    txtView.clearAnimation()
+                    //not a great fix can be done better
+                    (layout.parent as ViewGroup).removeView(layout)
+                    dialog2.show()
+            }
+        }).create()
+
+        dialog.show()
+
+    }
+
+    //once song has been correctly guess run
+    private fun onCorrectGuess(numOfStars:Int) {
+        // can add include for layout guess_song_layout
+        var congratBuilder = AlertDialog.Builder(this)
+
+        val inflater = layoutInflater
+
+        val a = inflater.inflate(R.layout.guess_song_layout,null)
+
+        a.txtsong.text = songName
+
+        congratBuilder
+                .setView(a)
+                .setNegativeButton("return" ,{ _ , _ ->
+                    onSongCompleted(numOfStars)
+                    super.onBackPressed()
+        }).setPositiveButton("play song",{ _, _ ->
+            onSongCompleted(numOfStars)
+            watchVideoLink(songLink)
+            super.onBackPressed()
+        }).setOnDismissListener({
+            onSongCompleted(numOfStars)
+            super.onBackPressed()
+        })
+
+        val congratDialog = congratBuilder.create()
+
+        congratDialog.show()
+    }
+
+    private fun watchVideoLink(id: String) {
+
+        val id_fix = id.substring(17,id.length)
+
+        val applicationIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id_fix))
+        val browserIntent = Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://www.youtube.com/watch?v=" + id_fix))
+        try {
+            startActivity(applicationIntent)
+        } catch (ex: ActivityNotFoundException) {
+            startActivity(browserIntent)
+        }
+    }
+
+    private fun switchtoSongSelect(){
+        val intent1 = Intent(this,SongSelectActivity::class.java)
+        startActivity(intent1)
+    }
+
+    private fun navBarOpen(){
+
+        if(drawer_layout.isDrawerOpen(GravityCompat.START)){
+            drawer_layout.closeDrawer(GravityCompat.START)
+        }else{
+            drawer_layout.openDrawer(GravityCompat.START)
+        }
+    }
+
+    private fun wordCollect(){
+        val exitBuilder  = AlertDialog.Builder(this)
+
+        var wordscold = collectedwords.toString()
+
+        exitBuilder
+                .setTitle("Words Colected:")
+                .setPositiveButton("Ok",{_,_ ->
+
+                }).setMessage( wordscold.substring(1,wordscold.length-1) ).create().show()
+    }
+
+    private fun collect(word:String){
+        val wordBuilder = AlertDialog.Builder(this)
+
+        proceed = false
+        //building completed song List
+        val inflater = layoutInflater
+        val wordCollectView= inflater.inflate(R.layout.word_collected,null)
+
+        wordCollectView.wordCollect.text = word
+
+        wordBuilder
+                .setTitle("Word Collected:")
+                .setView(wordCollectView)
+                .setPositiveButton("Ok",{_,_ ->
+                    proceed = true
+                }).setOnDismissListener({
+                proceed = true
+        }).create().show()
+
+        println(">>>> Users has pressed ok after seeing word")
+
+    }
+
+    private fun onSongCompleted(numOfStars: Int){
+        println(">>> $diff")
+        var setSongComplete = getSongCompleted.edit()
+        setSongComplete.putInt(songName,numOfStars)
+        setSongComplete.apply()
+    }
+
+    //--------------------------------------------------------------------------------------
+    //---------------------------XML parser starts here-------------------------------------
+
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    fun parseXml(strm:FileInputStream):ArrayList<MapMarker>{
+
+        //use kotlin block to save on strm.close()
+        strm.use {
+            val parser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES,false)
+            parser.setInput(strm,null)
+            parser.nextTag()
+            parser.nextTag()
+            return readMarkers(parser)
+        }
+    }
+
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readMarkers(parser: XmlPullParser):ArrayList<MapMarker>{
+        val songsParsed = ArrayList<MapMarker>()
+
+        parser.require(XmlPullParser.START_TAG,null,"Document")
+        while(parser.next() != XmlPullParser.END_TAG){
+            if(parser.eventType != XmlPullParser.START_TAG ){
+                //continues to next iteration of the loop
+                continue
+            }
+
+            if(parser.name == "Placemark"){
+                songsParsed.add(readMarker(parser))
+            }else {
+                skip(parser)
+            }
+        }
+
+        return songsParsed
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readMarker(parser: XmlPullParser):MapMarker{
+        parser.require(XmlPullParser.START_TAG,null,"Placemark")
+        var word = ""
+        var desc = ""
+
+        var points:Array<Double> = arrayOf(0.0,0.0)
+
+        while(parser.next() != XmlPullParser.END_TAG){
+            if(parser.eventType != XmlPullParser.START_TAG){
+                continue
+            }
+            when(parser.name){
+                "name" -> word = readName(parser)
+                "description" -> desc = readDesc(parser)
+                "Point" -> points = readPos(parser)
+                else -> skip(parser)
+            }
+        }
+
+        //add markers parsed to map
+
+        //if descriptor is a certain type set icon
+        val icon = when(desc) {
+            "unclassified" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.wht_blank))
+            "boring" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.ylw_blank))
+            "notboring" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.ylw_circle))
+            "interesting" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.orange_diamond))
+            "veryinteresting" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.red_stars))
+            else -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.design_password_eye))
+        }
+
+        //get word, with -1 to offset for array indexing
+        val wordNum = word.substringAfter(':').toInt() -1
+        val lineNum = word.substringBefore(':').toInt() - 1
+
+        //gets word that marker is associated with from list of list created from lyrics.txt
+        val wordFromFile = lyrics[lineNum][wordNum]
+
+        return MapMarker(mMap.addMarker(MarkerOptions()
+                .position( LatLng(points[0],points[1]))
+                .title(desc)
+                .icon(icon)),wordFromFile)
+    }
+
+    fun bitmapScale(resrc:Int):Bitmap {
+
+        val bitmapIn = BitmapFactory.decodeResource(resources,resrc)
+
+        val scall_zero_to_one_f :Float = 0.5F
+
+        val bitmapOut :Bitmap = Bitmap.createScaledBitmap(bitmapIn,
+            Math.round(bitmapIn.width * scall_zero_to_one_f),
+            Math.round(bitmapIn.height * scall_zero_to_one_f), false)
+
+        return bitmapOut
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readPos(parser: XmlPullParser): Array<Double>{
+
+        var pos:Array<Double> = arrayOf(1.0,1.0)
+
+        var posStr = ""
+
+        parser.require(XmlPullParser.START_TAG,null,"Point")
+
+        while(parser.next() != XmlPullParser.END_TAG){
+            if(parser.eventType != XmlPullParser.START_TAG){
+                continue
+            }
+            when(parser.name){
+                "coordinates" -> posStr = readCoord(parser)
+                else -> skip(parser)
+            }
+        }
+
+        posStr = posStr.subSequence(0,posStr.length-2).toString()
+
+        pos[0] = posStr.substringAfter(',').toDouble()
+        pos[1] = posStr.substringBefore(',').toDouble()
+
+        return pos
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readCoord(parser: XmlPullParser): String {
+
+        parser.require(XmlPullParser.START_TAG,null,"coordinates")
+        val posStr = readText(parser)
+        parser.require(XmlPullParser.END_TAG,null,"coordinates")
+        return posStr
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readTitle(parser: XmlPullParser): String {
+        parser.require(XmlPullParser.START_TAG,null,"Title")
+        val title = readText(parser)
+        parser.require(XmlPullParser.END_TAG,null,"Title")
+        return title
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readDesc(parser: XmlPullParser): String {
+        parser.require(XmlPullParser.START_TAG,null,"description")
+        val artist = readText(parser)
+        parser.require(XmlPullParser.END_TAG,null,"description")
+        return artist
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readName(parser: XmlPullParser): String {
+        parser.require(XmlPullParser.START_TAG,null,"name")
+        val name = readText(parser)
+        parser.require(XmlPullParser.END_TAG,null,"name")
+        return name
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun skip(parser: XmlPullParser) {
+        if(parser.eventType != XmlPullParser.START_TAG){
+            throw IllegalStateException()
+        }
+        var depth = 1
+        while(depth != 0){
+            when(parser.next()){
+                XmlPullParser.END_TAG -> depth--
+                XmlPullParser.START_TAG -> depth++
+            }
+        }
+
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    private fun readText(parser: XmlPullParser): String {
+        var result = ""
+        if(parser.next() == XmlPullParser.TEXT){
+            result = parser.text
+            parser.nextTag()
+        }
+        return result
+    }
+
+
+}
 
 
