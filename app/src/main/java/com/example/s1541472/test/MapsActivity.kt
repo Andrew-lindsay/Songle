@@ -60,6 +60,9 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private var lyrics:ArrayList<List<String>> = ArrayList()
     private var proceed = true
     //TODO: get proper icons for markers
+    //TODO: get words collect in collectedWords array to display nicely
+    //TODO: timed challenge to award stars appropriately
+    //TODO: similarty checking upper and lower case
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -341,7 +344,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
                 dialog2.setOnShowListener { dialog2.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                         val inputTxt = txtView.text.toString()
-                        if(inputTxt == songName){
+                        if(inputTxt.toLowerCase() == songName.toLowerCase()){
                             println("well done")
                             onCorrectGuess()
                             dialog2.dismiss()
@@ -354,7 +357,8 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
                 var dialog = exitBuilder.setMessage("").setPositiveButton("Enter",{ _,_  ->
                     val inputTxt = txtView.text.toString()
-                    if(inputTxt == songName){
+
+                    if(inputTxt.toLowerCase() == songName.toLowerCase()){
                         println("well done")
                         onCorrectGuess()
                     }else{
@@ -431,7 +435,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                         .setTitle("Words Colected:")
                         .setPositiveButton("Ok",{_,_ ->
 
-                        }).setMessage("the, Forrest, will, rise, appropriation").create().show()
+                        }).setMessage(collectedwords.toString()).create().show()
             }
 
             private fun collect(word:String){
