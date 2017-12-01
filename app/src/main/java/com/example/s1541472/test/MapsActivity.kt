@@ -3,6 +3,9 @@ package com.example.s1541472.test
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
@@ -60,9 +63,9 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private var lyrics:ArrayList<List<String>> = ArrayList()
     private var proceed = true
     //TODO: get proper icons for markers
-    //TODO: get words collect in collectedWords array to display nicely
+    //TODO: get words collect in collectedWords array to display nicely /!
     //TODO: timed challenge to award stars appropriately
-    //TODO: similarty checking upper and lower case
+    //TODO: similarty checking upper and lower case -!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -286,9 +289,10 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 //no last location ready yet
                 val mLastLocation1 = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
-
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                        LatLng(mLastLocation1.latitude, mLastLocation1.longitude), 20F))
+                if(mLastLocation1 != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                            LatLng(mLastLocation1.latitude, mLastLocation1.longitude), 20F))
+                }
             }
             true
         }
@@ -431,11 +435,13 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             private fun wordCollect(){
                 val exitBuilder  = AlertDialog.Builder(this)
 
+                var wordscold = collectedwords.toString()
+
                 exitBuilder
                         .setTitle("Words Colected:")
                         .setPositiveButton("Ok",{_,_ ->
 
-                        }).setMessage(collectedwords.toString()).create().show()
+                        }).setMessage( wordscold.substring(1,wordscold.length-1) ).create().show()
             }
 
             private fun collect(word:String){
@@ -448,14 +454,14 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
                 wordCollectView.wordCollect.text = word
 
-
                 wordBuilder
                         .setTitle("Word Collected:")
                         .setView(wordCollectView)
                         .setPositiveButton("Ok",{_,_ ->
                             proceed = true
-                        }).create().show()
-
+                        }).setOnDismissListener({
+                        proceed = true
+                }).create().show()
 
                 println(">>>> Users has pressed ok after seeing word")
 
@@ -532,13 +538,20 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
                 //if descriptor is a certain type set icon
 
-                val icon = BitmapDescriptorFactory.fromResource(R.drawable.abc_ic_star_black_16dp)
-
+                val icon = when(desc) {
+                    "unclassified" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.wht_blank))
+                    "boring" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.ylw_blank))
+                    "notboring" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.ylw_circle))
+                    "interesting" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.orange_diamond))
+                    "veryinteresting" -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.red_stars))
+                    else -> BitmapDescriptorFactory.fromBitmap(bitmapScale(R.drawable.design_password_eye))
+                }
 
                 //get word, with -1 to offset for array indexing
                 val wordNum = word.substringAfter(':').toInt() -1
                 val lineNum = word.substringBefore(':').toInt() - 1
 
+                //gets word that marker is associated with from list of list created from lyrics.txt
                 val wordFromFile = lyrics[lineNum][wordNum]
 
                 return MapMarker(mMap.addMarker(MarkerOptions()
@@ -547,12 +560,25 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                         .icon(icon)),wordFromFile)
             }
 
+            fun bitmapScale(resrc:Int):Bitmap {
+
+                val bitmapIn = BitmapFactory.decodeResource(resources,resrc)
+
+                val scall_zero_to_one_f :Float = 0.5F
+
+                val bitmapOut :Bitmap = Bitmap.createScaledBitmap(bitmapIn,
+                    Math.round(bitmapIn.width * scall_zero_to_one_f),
+                    Math.round(bitmapIn.height * scall_zero_to_one_f), false)
+
+                return bitmapOut
+            }
+
             @Throws(XmlPullParserException::class, IOException::class)
             private fun readPos(parser: XmlPullParser): Array<Double>{
 
                 var pos:Array<Double> = arrayOf(1.0,1.0)
 
-                var posStr =""
+                var posStr = ""
 
                 parser.require(XmlPullParser.START_TAG,null,"Point")
 
