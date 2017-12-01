@@ -61,14 +61,15 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private var lyrics:ArrayList<List<String>> = ArrayList()
     private var proceed = true
     private var gameStart:Long = 0L
+    private var repeat:Boolean = false
+
     //TODO: get words collect in collectedWords array to display nicely /!
     //TODO: similarty checking upper and lower case -!
     //TODO: Fix hard coded link, inent message needed -!
-    //TODO: timed challenge to award stars appropriately
+    //TODO: timed challenge to award stars appropriately -!
     //TODO: can add count down timer on screen ?
     //TODO: help explain what each marker color is related to
-    //TODO: on try of song stop from changing score
-
+    //TODO: on try of song stop from changing score -!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +90,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         songLink = intent.getStringExtra("songle.songLink")
         val mapFilePath = intent.getStringExtra("songle.mapFilePath")
         val lyricFilePath = intent.getStringExtra("songle.lyricsFilePath")
+        repeat = intent.getBooleanExtra("songle.repeat",false)
 
         //file paths
         markerFile = File(mapFilePath)
@@ -148,7 +150,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         val mLocationRequest = LocationRequest()
         mLocationRequest.interval = 5000 //in miliseconds
         mLocationRequest.fastestInterval = 1000
-        mLocationRequest.priority =LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
 
         //permission check
         val permissionCheck = ContextCompat.checkSelfPermission(this,
@@ -207,13 +209,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             if(locFollow.isChecked) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
             }
-
-            /*if(markersOnMap.size > count) {
-                println(">>>> I AM BLOODY HERE YOU TWAT")
-                markersOnMap[count].marker.isVisible = false
-            }else{
-                markersOnMap[count].marker.isVisible = true
-            }*/
 
             var locPoint = Location("marker")
             var dist:Float
@@ -293,6 +288,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 //no last location ready yet
                 val mLastLocation1 = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
+
                 if(mLastLocation1 != null) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
                             LatLng(mLastLocation1.latitude, mLastLocation1.longitude), 20F))
@@ -357,24 +353,14 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         var dialog2 = exitBuilder.setMessage("Sorry that is not correct").create()
 
         dialog2.setOnShowListener { dialog2.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val inputTxt = txtView.text.toString()
 
+            val inputTxt = txtView.text.toString()
 
             if(inputTxt.toLowerCase() == songName.toLowerCase()){
 
                 //time in minutes to complete song
-                val timeToComp =  (System.currentTimeMillis() - gameStart).toDouble()/60000
-                println(">>>>> Time in minutes taken to complete song: " + timeToComp )
 
-                //need the number of stars awarded
-                val numOfStars:Int =
-                        when {
-                            timeToComp < 10 -> 5
-                            timeToComp < 20 -> 4
-                            timeToComp < 30 -> 3
-                            timeToComp < 40 -> 2
-                            else -> 1
-                        }
+                val numOfStars = getNumOfStars()
 
                 println("well done")
                 onCorrectGuess(numOfStars)
@@ -394,19 +380,8 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                 //add star calculation here
                 if(inputTxt.toLowerCase() == songName.toLowerCase()){
 
-                    //replicated code :(
-                    val timeToComp =  (System.currentTimeMillis() - gameStart).toDouble()/60000
-                    println(">>>>> Time in minutes taken to complete song: " + timeToComp )
-
                     //need the number of stars awarded
-                    val numOfStars:Int =
-                            when {
-                                timeToComp < 10 -> 5
-                                timeToComp < 20 -> 4
-                                timeToComp < 30 -> 3
-                                timeToComp < 40 -> 2
-                                else -> 1
-                            }
+                    val numOfStars = getNumOfStars()
 
                     println("well done")
                     onCorrectGuess(numOfStars)
@@ -422,6 +397,27 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
     }
 
+    private fun getNumOfStars():Int{
+
+        val timeToComp =  (System.currentTimeMillis() - gameStart).toDouble()/60000
+        println(">>>>> Time in minutes taken to complete song: " + timeToComp )
+
+        //need the number of stars awarded
+        val numOfStars:Int =  if(repeat){
+            getSongCompleted.getInt(songName,0)
+        }else {
+            when {
+                timeToComp < 10 -> 5
+                timeToComp < 20 -> 4
+                timeToComp < 30 -> 3
+                timeToComp < 40 -> 2
+                else -> 1
+            }
+        }
+
+        return numOfStars
+    }
+
     //once song has been correctly guess run
     private fun onCorrectGuess(numOfStars:Int) {
         // can add include for layout guess_song_layout
@@ -432,6 +428,18 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         val a = inflater.inflate(R.layout.guess_song_layout,null)
 
         a.txtsong.text = songName
+
+        var starArray = arrayOf(a.star1,a.star2,a.star3,a.star4,a.star5)
+
+
+
+        for(index in 0..(numOfStars - 1) ){
+            starArray[index].setImageResource(android.R.drawable.btn_star_big_on)
+        }
+
+        if(repeat){
+            a.txtmain.text = "You have already completed this song, stars can now only be award if played by selecting random"
+        }
 
         congratBuilder
                 .setView(a)

@@ -30,18 +30,22 @@ class LoadingScreen : AppCompatActivity() {
 
         val intent = intent
 
+        //get intents
         //Easist map is map5 difficulties start at 0 (easy)
         val diff = intent.getIntExtra("songle.difficultyTransfer",0)
         val songName = intent.getStringExtra("songle.songName")
         val songLink = intent.getStringExtra("songle.songLink")
+        val repeat = intent.getBooleanExtra("songle.repeat",false)
 
         val diffmap = 5 - diff
 
         val songNumber:Int = intent.getIntExtra("songle.songNumber",0)
 
+        //forward intents
         intentMap.putExtra("songle.difficultyTransfer",diff)
         intentMap.putExtra("songle.songName",songName)
         intentMap.putExtra("songle.songLink",songLink)
+        intentMap.putExtra("songle.repeat",repeat)
 
         val songNumStr:String = if(songNumber > 9) songNumber.toString() else ("0" + songNumber)
 

@@ -33,13 +33,10 @@ import kotlin.collections.ArrayList
 class SongSelectActivity : AppCompatActivity() {
 
     var songs = ArrayList<Song>()
-
     //difficulty default is 0(easy)
     var diff: Int = 0
-
-    val diffSend:String = "songle.difficultyTransfer"
-
-    lateinit var getSongCompleted: SharedPreferences
+    private val diffSend:String = "songle.difficultyTransfer"
+    private lateinit var getSongCompleted: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,29 +76,13 @@ class SongSelectActivity : AppCompatActivity() {
             }
         }
 
-        //testing code
-//        for(i in 1..12){
-//            val song1 = Song(title = "${i}", number = 1, artist = "me", link = "None", complete = 0)
-//            songs.add(song1)
-//        }
-//
-//        val song1 = Song(title = "Bohemian Rhapsody", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 1)
-//        val song2 = Song(title = "I Fought the Law", number = 1, artist = "The Clash", link = "", complete = 1)
-//        songs.add(5,song1)
-//        songs.add(7,song2)
-        //end of testing code
-
-
-        //run after download and parsing
-//        val adapter = ArrayAdapter(this,R.layout.simplerow,songs)
-//
-//        songList.adapter = adapter
-
-
         val infoBuilder = AlertDialog.Builder(this)
 
+        //listView displayed on screen on click action below excuted
         songList.onItemClickListener = object: OnItemClickListener {
+
             override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+
                 val entrySong = songs[p2]
 
                 if (entrySong.complete  > 0){
@@ -117,7 +98,7 @@ class SongSelectActivity : AppCompatActivity() {
                     })
                     infoBuilder.setNegativeButton("Play again", DialogInterface.OnClickListener { dialog, id ->
                         // User clicked play again button
-                        switchtoLoading(entrySong.title,entrySong.number,entrySong.link)
+                        switchtoLoading(entrySong.title,entrySong.number,entrySong.link,repeat = true)
 
                     })
                     infoBuilder.setNeutralButton("Listen",DialogInterface.OnClickListener { dialog, id ->
@@ -155,13 +136,6 @@ class SongSelectActivity : AppCompatActivity() {
 
         //define new list display object to fill dialog box
         val compList = ListView(this)
-
-//        val complist = ArrayList<Song>()
-
-//        val s = Song(title = "Bohemian Rhapsody", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 1)
-//        val r = Song(title = "I Fought the Law", number = 1, artist = "Queen", link = "https://youtu.be/fJ9rUzIMcZQ", complete = 2)
-//        complist.add(s)
-//        complist.add(r)
 
         //custom list adapter written to get stars to display properly
         //takes array list of songs
@@ -205,12 +179,13 @@ class SongSelectActivity : AppCompatActivity() {
     }
 
     //change activity
-    private fun switchtoLoading(songTitle:String,songNumber:Int,songLink:String){
+    private fun switchtoLoading(songTitle:String,songNumber:Int,songLink:String,repeat:Boolean = false){
         val intent = Intent(this,LoadingScreen::class.java)
         intent.putExtra(diffSend,diff)
         intent.putExtra("songle.songName",songTitle)
         intent.putExtra("songle.songNumber",songNumber)
         intent.putExtra("songle.songLink",songLink)
+        intent.putExtra("songle.repeat",repeat)
 
         startActivity(intent)
     }
@@ -324,7 +299,7 @@ class SongSelectActivity : AppCompatActivity() {
         var artist = ""
         var title = ""
         var link = ""
-        var completed = 0
+        var completed: Int
 
         while(parser.next() != XmlPullParser.END_TAG){
             if(parser.eventType != XmlPullParser.START_TAG){
