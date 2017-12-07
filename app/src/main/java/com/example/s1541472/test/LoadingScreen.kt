@@ -90,9 +90,6 @@ class LoadingScreen : AppCompatActivity() {
 
     private fun downloadlyrics(fileUrl:String){
 
-        //link locations
-        //https://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/01/words.txt
-        //https://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/01/map5.txt
         val client = AsyncHttpClient()
         client.get(fileUrl, object : FileAsyncHttpResponseHandler(/* Context */this) {
 

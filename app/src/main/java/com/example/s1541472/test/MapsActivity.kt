@@ -68,7 +68,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     //TODO: Fix hard coded link, inent message needed -!
     //TODO: timed challenge to award stars appropriately -!
     //TODO: can add count down timer on screen ?
-    //TODO: help explain what each marker color is related to
+    //TODO: help explain what each marker color is related to -
     //TODO: on try of song stop from changing score -!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -145,7 +145,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         }
     }
 
-    //not required as of interface but setup function for mlocationRequest object
+    //setup function for mlocationRequest object
     fun createLocationRequest(){
         val mLocationRequest = LocationRequest()
         mLocationRequest.interval = 5000 //in miliseconds
@@ -169,8 +169,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             println("IllegalStateException thrown [onConnected]")
         }
 
-//        val permissionCheck2 = ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION)
 
         if(ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
@@ -195,14 +193,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         if(current == null){
             println("[onLocationChanged] unknown location")
         }else{
-
-            //update location need for location button
-//            mLastLocation = current
-//
-//            mMap.addCircle(CircleOptions()
-//                    .center(LatLng(current.latitude, current.longitude))
-//                    .radius(12.0)
-//                    .strokeColor(Color.RED))
 
             val currentloc = LatLng(current.latitude,current.longitude)
 

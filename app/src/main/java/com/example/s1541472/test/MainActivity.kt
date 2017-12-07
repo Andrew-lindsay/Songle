@@ -45,10 +45,6 @@ class MainActivity : AppCompatActivity() {
         info.setOnClickListener { info_box.show()}
         Bmain.setOnClickListener { switchToDifficultySelect() }
 
-
-        /* Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                 .setAction("Action", null).show()
-    */
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
