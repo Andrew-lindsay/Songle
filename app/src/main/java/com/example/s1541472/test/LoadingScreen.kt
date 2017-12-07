@@ -47,6 +47,7 @@ class LoadingScreen : AppCompatActivity() {
         intentMap.putExtra("songle.songLink",songLink)
         intentMap.putExtra("songle.repeat",repeat)
 
+        //make sure number fit with url format
         val songNumStr:String = if(songNumber > 9) songNumber.toString() else ("0" + songNumber)
 
         println("${url}/${songNumStr}/map${diffmap}.kml")
@@ -54,7 +55,7 @@ class LoadingScreen : AppCompatActivity() {
 
         downloadMap("${url}/${songNumStr}/map${diffmap}.kml","${url}/${songNumStr}/lyrics.txt")
 
-        println("Create finished")
+        println(">>>> Create finished")
 
     }
 

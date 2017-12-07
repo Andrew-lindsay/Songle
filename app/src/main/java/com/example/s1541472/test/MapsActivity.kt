@@ -178,7 +178,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             try {
                 mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
             }catch(se:IllegalStateException){
-                println("broken")
+                println(">>> broken")
                 println(mGoogleApiClient.isConnected)
             }
         }else{
@@ -240,7 +240,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
     override fun onConnectionFailed(p0: ConnectionResult) {
         println(">>> onConnection failed")
-        //return to main screen
+
     }
 
     /**
@@ -274,7 +274,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         mMap.uiSettings.isMyLocationButtonEnabled = true
 
         mMap.setOnMyLocationButtonClickListener {
-            //my god this code is terrible can be fixed by calling google api and not assigning mLastLocation in on location change
 
             if(ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

@@ -24,6 +24,7 @@ class songListAdapter(val songs:ArrayList<Song>,val cxt:Context) :ArrayAdapter<S
 //        return songs[position]
 //    }
 
+    //sets up view for item in completed song list, added right number of stars and name of song
     override fun getView(position:Int, convertview: View?, parent: ViewGroup): View {
 
         var conView:View
@@ -39,6 +40,7 @@ class songListAdapter(val songs:ArrayList<Song>,val cxt:Context) :ArrayAdapter<S
 
         val num_stars = if (songNow.complete > 0) songNow.complete - 1  else 0
 
+        //light up starts based on the number the user has achieved previously
         for(i in 0..num_stars){
             stars[i].setImageResource(android.R.drawable.btn_star_big_on)
         }
