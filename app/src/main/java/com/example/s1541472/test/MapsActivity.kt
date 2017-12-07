@@ -61,6 +61,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private var lyrics:ArrayList<List<String>> = ArrayList()
     private var proceed = true
     private var gameStart:Long = 0L
+    private var timeToComp:Double = 0.0
     private var repeat:Boolean = false
 
     //TODO: get words collect in collectedWords array to display nicely /!
@@ -81,6 +82,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         toolbar.setNavigationOnClickListener { navBarOpen() }
         navCollect.setOnClickListener { wordCollect() }
         guess.setOnClickListener { guessButtonPress() }
+        navHelp.setOnClickListener { onHelpPressed() }
 
         val intent = intent
 
@@ -389,7 +391,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
     private fun getNumOfStars():Int{
 
-        val timeToComp =  (System.currentTimeMillis() - gameStart).toDouble()/60000
+        timeToComp =  (System.currentTimeMillis() - gameStart).toDouble()/60000
         println(">>>>> Time in minutes taken to complete song: " + timeToComp )
 
         //need the number of stars awarded
@@ -419,9 +421,9 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
         a.txtsong.text = songName
 
+        a.timeComplete.text = String.format("Complete in: %.2f minutes ",timeToComp)
+
         var starArray = arrayOf(a.star1,a.star2,a.star3,a.star4,a.star5)
-
-
 
         for(index in 0..(numOfStars - 1) ){
             starArray[index].setImageResource(android.R.drawable.btn_star_big_on)
@@ -518,6 +520,20 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         var setSongComplete = getSongCompleted.edit()
         setSongComplete.putInt(songName,numOfStars)
         setSongComplete.apply()
+    }
+
+
+    private fun onHelpPressed(){
+
+        val helpBuilder = AlertDialog.Builder(this)
+
+        val inflater = layoutInflater
+        val helpView= inflater.inflate(R.layout.help_view,null)
+
+        helpBuilder
+                .setView(helpView)
+                .setPositiveButton("Ok",{_,_ ->
+        }).create().show()
     }
 
     //--------------------------------------------------------------------------------------
