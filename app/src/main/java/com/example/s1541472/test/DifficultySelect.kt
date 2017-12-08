@@ -68,16 +68,6 @@ class DifficultySelect : AppCompatActivity() {
     }
 
 
-    private fun switchToMap(){
-        val intent = Intent(this,MapsActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun switchToLoading(){
-        val intent = Intent(this,LoadingScreen::class.java)
-        startActivity(intent)
-    }
-
     private fun infoShow(){
 
         var infoBuilder = AlertDialog.Builder(this).setPositiveButton("Ok", {_,_ ->})
@@ -85,6 +75,7 @@ class DifficultySelect : AppCompatActivity() {
                 .setTitle("What do the Difficulties mean?").create().show()
     }
 
+    //generates random integer between 0 and 5
     private fun randDiff():Int{
         return (Math.random()*10).toInt() % 5
     }

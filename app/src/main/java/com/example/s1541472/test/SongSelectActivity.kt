@@ -85,6 +85,7 @@ class SongSelectActivity : AppCompatActivity() {
 
                 val entrySong = songs[p2]
 
+                //if song completed display info when clicked
                 if (entrySong.complete  > 0){
 
                     infoBuilder.setMessage("""Artist: ${entrySong.artist}
@@ -106,6 +107,7 @@ class SongSelectActivity : AppCompatActivity() {
                     })
                     infoBuilder.create().show()
 
+                    //when just a question mark go straight to playing so dont display info
                 }else switchtoLoading(entrySong.title,entrySong.number,entrySong.link)
 
             }
@@ -118,6 +120,8 @@ class SongSelectActivity : AppCompatActivity() {
     }
 
     override fun onRestart() {
+        //refresh song list so when user returns from map after completing a song
+        //the list displayed the name of the song instead of a question mark
         refreshSongList()
         super.onRestart()
 
@@ -140,9 +144,10 @@ class SongSelectActivity : AppCompatActivity() {
         //custom list adapter written to get stars to display properly
         //takes array list of songs
 
-        //quick fix will edit later
+        //filter all songs that are not complete before creating an adapter
         val compAdapter = songListAdapter(ArrayList(songs.filter { it.complete > 0 }),this)
 
+        //check song in list
         songs.map { println(it) }
 
         compList.adapter = compAdapter
@@ -158,6 +163,7 @@ class SongSelectActivity : AppCompatActivity() {
 
         val songComp = diabuild.create()
 
+        //do action on icon on app bar being pressed
         return when (item.itemId) {
             R.id.comp_song ->  {
                 songComp.show()
@@ -168,17 +174,22 @@ class SongSelectActivity : AppCompatActivity() {
 
     private fun refreshSongList(){
         println(">>> diff: $diff")
-        songs.map{ println("Title: " + it.title +" complete: " + it.complete) }
-        println("++++++")
-        songs.map{ it.complete = getSongCompleted.getInt(it.title,0)}
+
+        //print all songs in list a long with there number of stars
         songs.map{ println("Title: " + it.title +" complete: " + it.complete) }
 
+        //update all song completed fields in the song objects as
+        songs.map{ it.complete = getSongCompleted.getInt(it.title,0)}
+
+        //check songs have been updated correctly
+        songs.map{ println("Title: " + it.title +" complete: " + it.complete) }
+
+        //update adapter so list display properly
         var adapter = ArrayAdapter(this@SongSelectActivity,R.layout.simplerow,songs)
         songList.adapter = adapter
-
     }
 
-    //change activity
+    //change activity when song is selected
     private fun switchtoLoading(songTitle:String,songNumber:Int,songLink:String,repeat:Boolean = false){
         val intent = Intent(this,LoadingScreen::class.java)
         intent.putExtra(diffSend,diff)
@@ -208,6 +219,7 @@ class SongSelectActivity : AppCompatActivity() {
 
     private fun songDownloadFail(){
 
+        //create snack bar so user can select to retry donwload
         Snackbar.make(topLayer , "Song list download has failed", Snackbar.LENGTH_INDEFINITE)
                 .setAction("Retry", View.OnClickListener {
                     downloadSongs()
@@ -229,8 +241,8 @@ class SongSelectActivity : AppCompatActivity() {
 
                 songs = parseXml(songStrm)
 
-                //error must fix probably not seeding properly
-
+                //shuffle so song are not in same place for each difficulty
+                //seeded with difficulties number so order is reproducible
                 shuffle(songs,java.util.Random(diff.toLong()))
 
                 var adapter = ArrayAdapter(this@SongSelectActivity,R.layout.simplerow,songs)
@@ -240,12 +252,13 @@ class SongSelectActivity : AppCompatActivity() {
                 }
 
             override fun onFailure(statusCode: Int, headers: Array<out Header>?, throwable: Throwable?, file: File?) {
+                //display snack bar and wait
                 songDownloadFail()
                 println(">>> file failed to download")
             }
 
             override fun onUserException(error: Throwable?) {
-                println("you fucked up, man")
+                println(">>>> user error occurred")
                 songDownloadFail()
             }
 
@@ -317,6 +330,8 @@ class SongSelectActivity : AppCompatActivity() {
         //accessing preference files
         completed = getSongCompleted.getInt(title,0)
         println(">>> XML parser create song completed: $completed Title: $title")
+
+        //create song object with parsed information and completed song value
         return Song(number,artist,title,link,completed)
     }
 

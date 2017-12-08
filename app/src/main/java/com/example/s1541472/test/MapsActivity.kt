@@ -205,6 +205,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             var locPoint = Location("marker")
             var dist:Float
 
+            //if dialogue box showing the user a word they have collected has been dismissed/closed
             if(proceed == true) {
                 var count = 0
                 for (mark in markersOnMap) {
@@ -216,6 +217,8 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
                     //need to download the entire lyric file and parse into a array
 
+                    //if distance is less than 20m stop searching and tell
+                    // user that have collectd a word
                     if (dist < maxDist) {
                         collectedwords.add(mark.word)
                         collect(mark.word)
@@ -228,7 +231,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                     count++
                 }
             }
-
 
             println(">>>Location changed")
         }
@@ -256,6 +258,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
         mMap = googleMap
 
+        //area to zoom map to at start
         val mapBounds = LatLngBounds(LatLng(55.942617,-3.192473)
                 ,LatLng(55.946233,-3.184319))
 
@@ -271,8 +274,10 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             println("Security exception thrown [onMapReady]")
         }
 
+        //set blue circle for users location
         mMap.uiSettings.isMyLocationButtonEnabled = true
 
+        //zoom to users location when location button clicked
         mMap.setOnMyLocationButtonClickListener {
 
             if(ContextCompat.checkSelfPermission(this,
@@ -300,10 +305,10 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
     }
 
+    //display warning before user exit map screen
     override fun onBackPressed() {
         val exitBuilder = AlertDialog.Builder(this)
 
-        //              var txtView = EditText(this)
 
         exitBuilder
                 .setTitle("Warning")
@@ -316,7 +321,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                 .show()
     }
 
-    //green
+
     private fun guessButtonPress() {
 
         val exitBuilder = AlertDialog.Builder(this)
@@ -420,6 +425,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
         a.txtsong.text = songName
 
+        //format for display
         a.timeComplete.text = String.format("Complete in: %.2f minutes ",timeToComp)
 
         var starArray = arrayOf(a.star1,a.star2,a.star3,a.star4,a.star5)
@@ -470,6 +476,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         startActivity(intent1)
     }
 
+    //toggle navigation drawer
     private fun navBarOpen(){
 
         if(drawer_layout.isDrawerOpen(GravityCompat.START)){
@@ -482,12 +489,14 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     private fun wordCollect(){
         val exitBuilder  = AlertDialog.Builder(this)
 
+        //converts array of words collected to string to be displayed
         var wordscold = collectedwords.toString()
 
         exitBuilder
                 .setTitle("Words Colected:")
                 .setPositiveButton("Ok",{_,_ ->
 
+                    //cut off [ and ] from array of words turned to string
                 }).setMessage( wordscold.substring(1,wordscold.length-1) ).create().show()
     }
 
@@ -499,6 +508,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         val inflater = layoutInflater
         val wordCollectView= inflater.inflate(R.layout.word_collected,null)
 
+        //set the word displayed to the word the user just collected
         wordCollectView.wordCollect.text = word
 
         wordBuilder
@@ -552,7 +562,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
             return readMarkers(parser)
         }
     }
-
 
     @Throws(XmlPullParserException::class, IOException::class)
     private fun readMarkers(parser: XmlPullParser):ArrayList<MapMarker>{
