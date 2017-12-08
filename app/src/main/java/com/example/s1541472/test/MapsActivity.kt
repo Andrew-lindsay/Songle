@@ -47,7 +47,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     val PERMSISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
     var mLocationPermissionGranted = false
     private var mLastLocation : Location? = null
-    val TAG = "MapsActivity"
     private lateinit var songName: String
     private lateinit var songLink: String
     private lateinit var getSongCompleted: SharedPreferences
@@ -126,11 +125,14 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         //parsing the lyrics file so it can be indexed
         while( line != null){
 
+            //split for words on white space
             lyrics.add(line.split("\\s+".toRegex()))
 
+            //read next line
             line = lyricsReader.readLine()
         }
 
+        //marker
         println(">>>>++++++<<<<")
 
     }
@@ -174,10 +176,11 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
         if(ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            //no last location ready yet
+
             try {
                 mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
             }catch(se:IllegalStateException){
+                //no last location ready yet
                 println(">>> broken")
                 println(mGoogleApiClient.isConnected)
             }
@@ -189,7 +192,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
     }
 
-    // changed when location updated main logic for being near markers goes here ?
+    // changed when location updated marker collection happens here
     override fun onLocationChanged(current: Location?) {
 
         if(current == null){
@@ -202,6 +205,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(currentloc))
             }
 
+            //create location to hold location of markers for comparison
             var locPoint = Location("marker")
             var dist:Float
 
@@ -258,7 +262,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
         mMap = googleMap
 
-        //area to zoom map to at start
+        //area to zoom to on map at the start
         val mapBounds = LatLngBounds(LatLng(55.942617,-3.192473)
                 ,LatLng(55.946233,-3.184319))
 
@@ -308,7 +312,6 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
     //display warning before user exit map screen
     override fun onBackPressed() {
         val exitBuilder = AlertDialog.Builder(this)
-
 
         exitBuilder
                 .setTitle("Warning")
@@ -428,7 +431,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
         //format for display
         a.timeComplete.text = String.format("Complete in: %.2f minutes ",timeToComp)
 
-        var starArray = arrayOf(a.star1,a.star2,a.star3,a.star4,a.star5)
+        val starArray = arrayOf(a.star1,a.star2,a.star3,a.star4,a.star5)
 
         for(index in 0..(numOfStars - 1) ){
             starArray[index].setImageResource(android.R.drawable.btn_star_big_on)
@@ -526,7 +529,7 @@ class MapsActivity : AppCompatActivity(),OnMapReadyCallback
 
     private fun onSongCompleted(numOfStars: Int){
         println(">>> $diff")
-        var setSongComplete = getSongCompleted.edit()
+        val setSongComplete = getSongCompleted.edit()
         setSongComplete.putInt(songName,numOfStars)
         setSongComplete.apply()
     }
